@@ -1,0 +1,9 @@
+# Copy to the root of your repository as chain.yml. Every key is optional.
+paths:
+  capabilities: capabilities     # folder of capability files
+  intent: intent                 # folder of intent/<slug>/{intent,spec,plan}.md
+review:
+  passes: [bugs, security, compliance]
+  drift_passes: [compliance]     # findings from these passes raise a drift signal
+health:
+  stale_days: 7

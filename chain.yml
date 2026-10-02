@@ -1,0 +1,10 @@
+# Chain configuration for this repository (spec §5.3).
+# Chain reads this file to find the artifact chain. Defaults apply when absent.
+paths:
+  capabilities: capabilities
+  intent: intent
+review:
+  passes: [bugs, security, compliance]   # findings are tagged as a line starting with [pass]
+  drift_passes: [compliance]
+health:
+  stale_days: 7                          # an open artifact PR with no activity is blocked
