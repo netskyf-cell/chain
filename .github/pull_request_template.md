@@ -1,10 +1,14 @@
-## Feature
+## Type
 
+<!-- Keep ONE line and delete the other. -->
 Feature: <slug>
+Light change: <one-line reason: a small fix with no change of intent>
+
+Capability: <slug, optional for a light change>
 
 ## Plan match
 
-<!-- Does this PR deliver what intent/<slug>/plan.md describes? Yes, or say what differs. -->
+<!-- Features: does this PR deliver what intent/<slug>/plan.md describes? Yes, or say what differs. Light change: write "n/a". -->
 
 ## Divergences from plan
 

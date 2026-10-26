@@ -8,3 +8,6 @@ review:
   drift_passes: [compliance]
 health:
   stale_days: 7                          # an open artifact PR with no activity is blocked
+light:
+  max_files: 5                  # unvalidated defaults (ADR-0011)
+  max_changed_lines: 150

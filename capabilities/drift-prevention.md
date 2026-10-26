@@ -19,4 +19,4 @@ All features linked to this capability have shipped. Drift signals are determini
 
 ## Features
 
-F-20, F-21, F-22, F-23, F-24, F-25, F-26. See [`spec.md`](../intent/chain/spec.md).
+F-20, F-21, F-22, F-23, F-24, F-25, F-26, F-27. See [`spec.md`](../intent/chain/spec.md).

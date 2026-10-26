@@ -44,9 +44,10 @@ Chain has no write path into GitHub, Claude or the PM tools. Its only writes are
 | **API functions** | HTTP entry points: webhook receiver, ingest endpoint, data endpoints, demo scan | `api/` |
 | **Connectors** | Turn one source into observations (`github`, `claude-code`, `pm-link`) | `lib/connectors/` |
 | **Reconcile core** | Pure function: observations in, feature state and signals out | `lib/reconcile/` |
-| **Parsers** | Artifact frontmatter, PR body sections, review-finding tags | `lib/parse/` |
+| **Parsers** | Artifact frontmatter, PR body sections (including the `Light change:` line), review-finding tags | `lib/parse/` |
+| **Format readers** (1.1) | Turn another tool's spec layout into the same observations as the native reader (ADR-0012) | `lib/parse/formats/` |
 | **Store** | Supabase access, cache, migrations | `lib/store/`, `migrations/` |
-| **Hook template** | Script a builder installs to send session aggregates | `templates/` |
+| **Session-data template** (1.1) | Settings or a fallback hook script a builder installs to send session aggregates (ADR-0006) | `templates/` |
 
 ## 4. The connector seam
 
@@ -119,7 +120,7 @@ No installation exists, so no webhook. The demo scan runs on request: it reads t
 
 ### 6.3 Claude Code sessions (ingest path, release 1.1)
 
-A hook on the builder's machine reads its own session data locally, computes aggregates, and posts them to `/api/ingest/claude-code` with a per-repo token. The transcript never leaves the machine (ADR-0006).
+Metadata reaches `/api/ingest/claude-code` with a per-repo token, from one of two sources chosen by spike S-A (ADR-0006): Claude Code's documented OpenTelemetry export (tested first), or a local fallback hook that computes aggregates. The endpoint keeps an **allowlist of fields** and drops any prompt, response or tool-content field on receipt. Transcripts are never stored.
 
 ## 7. Data model
 
@@ -131,9 +132,9 @@ All tables have `created_at` and `updated_at`. RLS is on for every table. The fu
 | `capabilities` | One row per `capabilities/*.md`: slug, statement, owner, target, source path and SHA |
 | `features` | One row per `intent/<slug>/`: capability link, lifecycle, health, health reason |
 | `artifacts` | One row per feature and type (`intent`, `spec`, `plan`): state, path, SHA, PR number, first commit, accepted time, revision count |
-| `pull_requests` | PR facts: state, merged time, last activity, requested changes, checks state, linked feature |
+| `pull_requests` | PR facts: state, merged time, last activity, requested changes, checks state, `kind` (`feature`, `light`, `unlinked`), linked feature or capability, changed files and lines |
 | `review_findings` | One row per finding: PR, pass, severity, URL. No finding body stored beyond a short excerpt |
-| `signals` | Drift and governance signals: kind, severity, evidence URL, detected time, resolution and reason |
+| `signals` | Drift and governance signals: kind, severity, evidence URL, detected time, resolution and reason. Attached to a repo, and to a feature or a pull request (light changes have no feature) |
 | `sessions` | Claude Code aggregates: times, model, tool counts, plan-mode flag. No content |
 | `hook_decisions` | Gate events: hook name, decision, time |
 | `links` | Work-item links: system, external id, URL, last known status |
@@ -184,7 +185,9 @@ chain/
 ├── docs/
 │   ├── architecture.md                ✅ this file
 │   ├── agile-mapping.md               ✅
-│   └── adr/                           ✅ ADR-0001 to ADR-0010, index, template
+│   ├── landscape.md                   ✅ sourced facts about other tools
+│   ├── implementation-guide.md        ✅ how to build Chain, slice by slice
+│   └── adr/                           ✅ ADR-0001 to ADR-0012, index, template
 ├── design/                            ✅ pointer and revision list; export goes here
 ├── migrations/001_initial_schema.sql  ✅
 ├── templates/                         ✅ PR template copy, chain.yml example, hook (1.1)
@@ -201,7 +204,8 @@ chain/
 │   ├── connectors/                    ◻ S0   github.js, (1.1) claude-code.js, (1.2) pm-link.js
 │   ├── reconcile/                     ◻ S1   state.js, signals/*.js (one file per rule)
 │   ├── parse/                         ◻ S0   artifact.js, pr-body.js, findings.js
-│   └── store/                         ◻ S0
+│   │   └── formats/                   ◻ 1.1  speckit.js, kiro.js, openspec.js (ADR-0012)
+│   └── store/                         ◻ S1
 ├── fixtures/                          ◻ S0   a complete chain with known drift
 └── test/                              ◻ S0
 ```
@@ -212,10 +216,10 @@ chain/
 
 | Variable | Needed from slice | Purpose |
 |---|---|---|
-| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | S0 | Client access (anon key is safe in the front end, RLS protects data) |
-| `SUPABASE_SERVICE_KEY` | S0 | Server-side writes. Never in code |
-| `GITHUB_PUBLIC_READ_TOKEN` | S0 | Server-held, read-only, public data only, for demo mode |
-| `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET` | S1 | App installation tokens and webhook verification |
+| `GITHUB_DEMO_TOKEN` | S0 | Server-held, read-only, public data only, for demo mode |
+| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | S1 | Client access (anon key is safe in the front end, RLS protects data) |
+| `SUPABASE_SERVICE_ROLE_KEY` | S1 | Server-side writes, `api/` only. Never in code |
+| `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, `GITHUB_WEBHOOK_SECRET` | S1 | App installation tokens and webhook verification, first for the owner's own repo; multi-user install and sign-in arrive in S3 |
 | `CHAIN_INGEST_TOKEN_SALT` | 1.1 | Hashing per-repo ingest tokens |
 
 Environments: local, preview (per pull request), production. Preview deployments use a separate Supabase project and a separate GitHub App.
@@ -239,8 +243,10 @@ Structured logs with request id, repo id and duration. No repository content and
 
 | Spike | Question | Blocks |
 |---|---|---|
-| S-A | What does a Claude Code hook receive, and what can be computed locally from the session data? Is OpenTelemetry a better source for organisations? | Release 1.1 (ADR-0006) |
+| S-A | Does Claude Code's OpenTelemetry export give what Chain needs (feature attribution, plan-mode identification, session times, repository identity) with content flags off? If not, what does a hook receive? | Release 1.1 (ADR-0006) |
 | S-B | Can the GitHub App's user authorisation back Supabase sign-in, or is a separate OAuth app needed? | Slice S3 (ADR-0004) |
 | S-C | REST or GraphQL for batching pull requests, reviews and files? | Slice S1 |
 | S-D | How do real review findings look, and does the `[pass]` tag survive? | Slice S2 |
 | S-E | Which Jira, Linear and Azure DevOps read scopes are enough? | Release 1.2 |
+| S-F | What do Spec Kit, Kiro and OpenSpec really write to disk for one small feature, and how does it map to intent, spec and plan? | Release 1.1 (ADR-0012) |
+| S-G | Which trackers do target users run, and is a Chain connector needed beyond Copilot's Jira and Linear integrations? Is Azure DevOps covered by any agent integration? | Release 1.2 (F-41, F-42) |

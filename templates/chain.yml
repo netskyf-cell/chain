@@ -7,3 +7,6 @@ review:
   drift_passes: [compliance]     # findings from these passes raise a drift signal
 health:
   stale_days: 7
+light:
+  max_files: 5                  # unvalidated defaults (ADR-0011)
+  max_changed_lines: 150

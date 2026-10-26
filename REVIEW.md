@@ -27,6 +27,7 @@ Chain counts these by pass. `[compliance]` findings at Important raise a drift s
 - a connector that applies rules (connectors only observe, ADR-0005)
 - an AI call (none in v1, ADR-0008)
 - a plan deviation not listed under "Divergences from plan"
+- a `Light change:` PR that is really a feature (new behaviour, a new route or table, a changed rule), or that exceeds 5 files or 150 lines
 
 ## Severity
 

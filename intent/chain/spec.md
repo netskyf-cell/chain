@@ -11,6 +11,8 @@ Derived from [`intent.md`](intent.md). This is the **umbrella spec** for the pro
 Architecture, data model and file structure: [`docs/architecture.md`](../../docs/architecture.md).
 Decisions: [`docs/adr/`](../../docs/adr/README.md).
 How Agile and PM practice maps onto Chain: [`docs/agile-mapping.md`](../../docs/agile-mapping.md).
+What exists around Chain, with sources: [`docs/landscape.md`](../../docs/landscape.md).
+How to build it: [`docs/implementation-guide.md`](../../docs/implementation-guide.md).
 
 ---
 
@@ -21,6 +23,10 @@ Chain reads a team's GitHub repositories and renders three things:
 1. **Capabilities**: user goals, written as files, with the features that serve them.
 2. **The artifact chain per feature**: `intent.md` → `spec.md` → `plan.md` → build → pull request, with the state of each step.
 3. **Signals**: where a human decision is waiting, and where execution drifted from the plan.
+
+Small changes take a **light path** (a pull request with a declared reason, no intent folder) and are shown without ceremony ([ADR-0011](../../docs/adr/0011-light-path-for-small-changes.md)).
+
+**Positioning.** Spec-driven tools create the artifacts, and the dashboards found for them read local files only ([landscape](../../docs/landscape.md)). Chain's ground is the **join**: artifact files, pull request state, review findings and drift signals in one read-only view.
 
 It reads two further sources: **Claude Code session metadata** (what the agent did) and **PM-tool work items** (linked by ID). It never writes to any of them in v1.
 
@@ -59,6 +65,7 @@ Capability slugs: `FV` flow-visibility, `DP` drift-prevention, `PV` portfolio-vi
 | F-14 | Waiting-on-a-human queue | FV | 1.0 | Lists every artifact in `proposed` state with its PR, age, requested reviewers; sorted by age |
 | F-15 | Source-surface labelling | FV | 1.0 | Each artifact shows where it was produced (Claude Design, Claude.ai, Claude Code, human, unknown) using the detection ladder in §5.4, with a confidence label |
 | F-16 | Design node | FV | 1.0 | If a feature folder declares a design reference, the chain shows a Claude Design node; otherwise it shows as skipped (dashed), not missing |
+| F-17 | Light changes | FV | 1.0 | Pull requests on the light path (§5.5) are listed per repository, and counted under their capability when a `Capability:` line is present, with size shown; they have no lifecycle or health of their own |
 | F-70 | "Start session" prompt | FV | 1.0 | Copies a ready-to-paste Claude Code prompt naming the feature's accepted artifacts and paths (Chain does not write to the repo) |
 
 ### 3.3 Prevent drift (capability `DP`)
@@ -72,6 +79,7 @@ Capability slugs: `FV` flow-visibility, `DP` drift-prevention, `PV` portfolio-vi
 | F-24 | Lead-time and rework metrics | DP | 1.1 | Intent→spec time, plan accepted→merged time, intent acceptance rate, rework counts per feature, from Git only |
 | F-25 | Readiness check | DP | 1.1 | Scores a repo against the harness checklist (§7): `CLAUDE.md`, `REVIEW.md`, skills, hooks, PR template, folder convention |
 | F-26 | Signal feedback | DP | 1.1 | A signal can be dismissed with a reason or marked valid; dismissals are stored and shown, never silently dropped |
+| F-27 | Light-path size guard | DP | 1.0 | A light change above `light.max_files` or `light.max_changed_lines` raises `light_path_large` with the counts as evidence (defaults are unvalidated, ADR-0011) |
 
 ### 3.4 Portfolio (capability `PV`)
 
@@ -87,9 +95,9 @@ Capability slugs: `FV` flow-visibility, `DP` drift-prevention, `PV` portfolio-vi
 | ID | Feature | Cap. | Rel. | Acceptance criterion |
 |---|---|---|---|---|
 | F-40 | Link display | LW | 1.0 | `links:` in artifact frontmatter are shown as chips with URLs; no API call |
-| F-41 | Jira connector | LW | 1.2 | Reads status and assignee of linked issues, read-only |
-| F-42 | Linear connector | LW | 1.2 | Same, for Linear issues |
-| F-43 | Azure DevOps connector | LW | 1.2 | Same, for work items |
+| F-43 | Azure DevOps connector | LW | 1.2 | Reads status and assignee of linked work items, read-only. First tracker, because the landscape research found no existing agent integration for it (not exhaustive) |
+| F-41 | Jira connector | LW | 1.2, conditional | Same, for Jira issues. Built only if spike S-G shows a need beyond what Copilot's Jira integration already gives |
+| F-42 | Linear connector | LW | 1.2, conditional | Same, for Linear issues, under the same condition |
 | F-44 | Link health | LW | 1.2 | Flags an artifact whose linked item is missing or closed while the artifact is still open |
 
 ### 3.6 Build transparency (capability `BT`)
@@ -110,14 +118,15 @@ Capability slugs: `FV` flow-visibility, `DP` drift-prevention, `PV` portfolio-vi
 | F-62 | Audit export | — | 1.1 | JSON export of a feature's full chain, signals and sessions |
 | F-63 | Notifications | — | 2 | Email or Slack when a drift signal appears or an artifact waits too long |
 | F-64 | Roles and teams | — | 2 | Invite members; viewer and owner roles |
+| F-65 | Format readers | FV | 1.1 | Reads Spec Kit, Kiro and OpenSpec layouts into the same intent, spec and plan nodes, shows the detected format, and lists unmappable files as "other artifact". Mapping set by spike S-F (ADR-0012) |
 
 ## 4. Release plan and build order
 
 | Release | Name | Contains |
 |---|---|---|
-| **1.0** | Read the chain | F-01–F-05, F-10–F-16, F-20–F-23, F-30, F-40, F-60, F-61, F-70 |
-| **1.1** | See the build | F-24–F-26, F-31, F-32, F-50–F-52, F-62 |
-| **1.2** | Link the work | F-41–F-44, F-53 |
+| **1.0** | Read the chain | F-01–F-05, F-10–F-17, F-20–F-23, F-27, F-30, F-40, F-60, F-61, F-70 |
+| **1.1** | See the build | F-24–F-26, F-31, F-32, F-50–F-52, F-62, F-65 |
+| **1.2** | Link the work | F-43, F-44, F-53; F-41 and F-42 only if spike S-G confirms the need |
 | **2** | Teams | F-33, F-63, F-64 |
 | **3** | Organisations | Multi-org, SSO, managed policies (not specified yet) |
 
@@ -126,8 +135,8 @@ Release 1.0 is built in slices. Each slice is demonstrable on its own, and each 
 | Slice | Goal | Features | Demo moment |
 |---|---|---|---|
 | **S0** Walking skeleton | A public repo renders as a board, no login | F-04, F-03, F-10, F-12 (static) | Paste Chain's own repo URL, see Chain's own chain |
-| **S1** State | Artifact state and the human-wait queue are right | F-05, F-14, F-20 (without drift) | Open a PR on an intent, watch it appear as "proposed" |
-| **S2** Drift | Deterministic signals with evidence | F-21, F-22, F-23 | Edit a spec after plan acceptance, see the signal |
+| **S1** State | Artifact state, the human-wait queue and PR classification are right | F-05, F-14, F-17, F-20 (without drift) | Open a PR on an intent, watch it appear as "proposed"; open a light PR, see it listed |
+| **S2** Drift | Deterministic signals with evidence | F-21, F-22, F-23, F-27 | Edit a spec after plan acceptance, see the signal; open an oversized light PR, see the guard fire |
 | **S3** Connect | Sign-in, app install, multi-repo | F-01, F-02, F-30, F-61 | Connect a private repo |
 | **S4** Finish | Previews, labels, links, themes, start prompt | F-13, F-15, F-16, F-40, F-60, F-70 | Full walk-through |
 
@@ -171,6 +180,9 @@ review:
   drift_passes: [compliance]
 health:
   stale_days: 7                          # an open artifact PR with no activity is blocked
+light:
+  max_files: 5                           # unvalidated defaults (ADR-0011)
+  max_changed_lines: 150
 ```
 
 ### 5.4 Source-surface detection ladder
@@ -191,10 +203,13 @@ First match wins:
 1. The PR changes files under `intent/<slug>/`.
 2. The PR body contains `Feature: <slug>`.
 3. The PR has the label `feature:<slug>`.
+4. The PR body has a line `Light change: <reason>` with a non-empty reason. The PR is then a **light change** (ADR-0011). An optional line `Capability: <slug>` counts it under a capability.
+
+A value still wrapped in angle brackets (for example `<slug>`) is a template placeholder and is ignored. A PR matching none of the rules is listed as **unlinked**. Rules 1 to 3 win over rule 4.
 
 ### 5.6 Pull request template
 
-Chain ships a template ([`.github/pull_request_template.md`](../../.github/pull_request_template.md)) with a **Feature**, a **Plan match** and a **Divergences from plan** section. A non-empty divergences section is a drift signal (F-22).
+Chain ships a template ([`.github/pull_request_template.md`](../../.github/pull_request_template.md)) with a **Type** line (`Feature:` or `Light change:`), a **Plan match** and a **Divergences from plan** section. A non-empty divergences section is a drift signal (F-22).
 
 ## 6. State model
 
@@ -233,7 +248,7 @@ stateDiagram-v2
 
 A shipped feature can still show `drift`. That is the point.
 
-**Capability roll-up:** progress = features `shipped` / features with an accepted intent. Health = the worst health among its features. Features with only a proposed intent are listed separately as "proposed".
+**Capability roll-up:** progress = features `shipped` / features with an accepted intent. Health = the worst health among its features. Features with only a proposed intent are listed separately as "proposed". Light changes are counted next to progress and never change it or the health.
 
 ## 7. Drift rules (deterministic)
 
@@ -245,10 +260,13 @@ A shipped feature can still show `drift`. That is the point.
 | `pr_declares_divergence` | PR body "Divergences from plan" section is non-empty and not "None" | warn | PR body |
 | `compliance_finding` | A review finding tagged `[compliance]` with severity Important or Block | high | PR review |
 | `gate_bypassed` | An artifact reached the default branch without a PR | high | Git history |
+| `light_path_large` | A light change touches more than `light.max_files` files or `light.max_changed_lines` lines | warn | PR files |
 
 `intent_rework` and `spec_rework` correspond to the playbook's rework indicators for the Plan and Design stages. They can be counted from Git history alone.
 
 A signal is resolved only by a person: dismissed with a reason (F-26) or superseded by an accepted revision. Chain never auto-resolves.
+
+A signal attaches to a feature, or to a pull request when the change has no feature (light changes). `light_path_large` is the only rule that uses the latter.
 
 **Readiness checklist (F-25):** `CLAUDE.md` with a verification block, `REVIEW.md`, at least one skill in `.claude/skills/`, `.claude/settings.json` with hooks, a PR template, the folder convention, branch protection requiring review (read from the GitHub API where permitted).
 
@@ -299,15 +317,22 @@ The first Claude Design export covers the board, capability detail, feature deta
 | Vanilla front end gets heavy | Slower delivery | Revisit trigger in ADR-0009: more than 8 views or shared state across views |
 | Source-surface detection is weak | Mislabelled flow | Explicit `produced_with` first, confidence shown, `unknown` allowed |
 | Three sources in v1 widen scope | Late or thin 1.0 | Sources ship in separate releases; the connector seam (ADR-0005) is built in 1.0 |
+| The light path is used to dodge the chain | Real features hidden as small changes | Declared reason, size guard (F-27), `[compliance]` review pass; thresholds tuned on Chain's own PRs |
+| Other tools' layouts are not as documented | Format readers map wrongly | Spike S-F on real output before any reader; unmappable files shown, not dropped |
+| Chain duplicates what agent vendors already show in trackers | Little value from F-41, F-42 | Conditional on spike S-G; Azure DevOps first |
+| Positioning claims go stale | Public claims about other tools turn false | Every claim links to a row in [landscape](../../docs/landscape.md), re-checked quarterly |
 
 ## 12. Open questions
 
 1. Name, trademark and domain check for "Chain".
 2. Licence for the public repository.
-3. Spike: Claude Code hook payloads, and whether OpenTelemetry is a better source for organisations (ADR-0006).
+3. Spike S-A: test Claude Code's OpenTelemetry export first, hook payloads as fallback (ADR-0006).
 4. Spike: reuse the GitHub App's user authorisation for Supabase sign-in, or use a separate OAuth app (ADR-0004).
 5. REST or GraphQL for pull-request batches.
 6. Branch protection is only readable with higher permissions. Is the readiness check allowed to ask for them, or does it stay optional?
+7. Spike S-F: real file layouts of Spec Kit, Kiro and OpenSpec, and the mapping to intent, spec and plan (ADR-0012).
+8. Spike S-G: which trackers do target users actually run, and is a Chain connector needed beyond Copilot's Jira and Linear integrations? Check Azure DevOps coverage.
+9. Light-path thresholds (5 files, 150 lines) are placeholders. Tune on Chain's own pull requests after slice S2.
 
 ## 13. Traceability to the playbook
 
@@ -322,3 +347,4 @@ The first Claude Design export covers the board, capability detail, feature deta
 | Deploy: hooks as approval gates | F-52, `gate_bypassed` |
 | Maintain: close the loop with a new intent | A new `intent/<slug>/` folder; Chain shows it as a new feature |
 | Source of truth per artifact (legacy systems sidebar) | ADR-0007, F-40–F-44 |
+| Proportionate process for small changes | ADR-0011, F-17, F-27 |
