@@ -19,4 +19,4 @@ All features linked to this capability have shipped: their build pull request is
 
 ## Features
 
-F-03, F-10, F-11, F-12, F-13, F-14, F-15, F-16, F-70. See [`spec.md`](../intent/chain/spec.md).
+F-03, F-10, F-11, F-12, F-13, F-14, F-15, F-16, F-17, F-70, and F-65 (format readers, 1.1). See [`spec.md`](../intent/chain/spec.md).

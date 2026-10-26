@@ -83,6 +83,11 @@ create table pull_requests (
   id                uuid primary key default gen_random_uuid(),
   repo_id           uuid not null references repos(id) on delete cascade,
   feature_id        uuid references features(id) on delete set null,
+  capability_id     uuid references capabilities(id) on delete set null,
+  kind              text not null default 'unlinked'
+                    check (kind in ('feature','light','unlinked')),
+  changed_files     integer,
+  changed_lines     integer,
   number            integer not null,
   title             text,
   state             text not null check (state in ('open','closed','merged')),
@@ -112,7 +117,9 @@ create table review_findings (
 -- signals -------------------------------------------------------------------
 create table signals (
   id             uuid primary key default gen_random_uuid(),
-  feature_id     uuid not null references features(id) on delete cascade,
+  repo_id        uuid not null references repos(id) on delete cascade,
+  feature_id     uuid references features(id) on delete cascade,
+  pr_id          uuid references pull_requests(id) on delete cascade,
   kind           text not null,
   severity       text not null check (severity in ('info','warn','high')),
   evidence_url   text,
@@ -122,7 +129,8 @@ create table signals (
   resolution     text,
   feedback_valid boolean,
   created_at     timestamptz not null default now(),
-  updated_at     timestamptz not null default now()
+  updated_at     timestamptz not null default now(),
+  check (feature_id is not null or pr_id is not null)  -- a signal attaches to a feature or a PR
 );
 
 -- sessions (aggregates only; ADR-0006, proposed) ------------------------------
@@ -237,8 +245,8 @@ create policy review_findings_read on review_findings for select
                  where p.id = review_findings.pr_id and (r.is_public or r.owner_user = auth.uid())));
 
 create policy signals_read on signals for select
-  using (exists (select 1 from features f join repos r on r.id = f.repo_id
-                 where f.id = signals.feature_id and (r.is_public or r.owner_user = auth.uid())));
+  using (exists (select 1 from repos r where r.id = signals.repo_id
+                 and (r.is_public or r.owner_user = auth.uid())));
 
 create policy links_read on links for select
   using (exists (select 1 from features f join repos r on r.id = f.repo_id
@@ -256,5 +264,4 @@ create policy observations_read on observations for select
 
 -- Signal resolution by the repo owner (the only client write allowed)
 create policy signals_resolve on signals for update
-  using (exists (select 1 from features f join repos r on r.id = f.repo_id
-                 where f.id = signals.feature_id and r.owner_user = auth.uid()));
+  using (exists (select 1 from repos r where r.id = signals.repo_id and r.owner_user = auth.uid()));

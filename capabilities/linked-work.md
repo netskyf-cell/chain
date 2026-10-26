@@ -9,7 +9,7 @@ target: 2027-Q1
 
 > Teams keep their existing PM tools and see their work items linked to intents, specs and plans.
 
-**Proposed.** Added when the scope was widened to PM-tool links. Needs confirmation with real teams.
+**Proposed, narrowed.** Added when the scope was widened to PM-tool links. Research found that Copilot already posts agent progress into Jira and Linear ([landscape](../docs/landscape.md)), so those two connectors are conditional on spike S-G. Azure DevOps comes first. Needs confirmation with real teams.
 
 ## Why this matters
 
@@ -21,4 +21,4 @@ All features linked to this capability have shipped. Chain displays the work-ite
 
 ## Features
 
-F-40, F-41, F-42, F-43, F-44. See [`spec.md`](../intent/chain/spec.md).
+F-40, F-43, F-44, and conditionally F-41, F-42. See [`spec.md`](../intent/chain/spec.md).

@@ -20,6 +20,7 @@ Read this table as a **mapping of intent**, not an equivalence. Chain does not r
 | **Sprint review** | Inspect what was delivered | Capability and portfolio views | Capability detail, portfolio, shareable read-only view (1.1) |
 | **Retrospective** | Learn from how work went | Drift signals and rework counts | Signals with evidence, lead times, rework per feature (1.1) |
 | **Impediments** | Make blockers visible | Pull requests that stall or change requests | `blocked` health, with the stated reason |
+| **Small fixes and maintenance** | Keep process proportionate to the change | A pull request with `Light change: <reason>` | Listed per repository and capability with size; a size guard flags light changes that are really features ([ADR-0011](adr/0011-light-path-for-small-changes.md)) |
 | **Governance and compliance** | Show controls worked | Hooks, review findings, protected branches, the commit chain | Hook decision log (1.1), `gate_bypassed` signal, readiness check |
 
 ## What changes for the people involved
