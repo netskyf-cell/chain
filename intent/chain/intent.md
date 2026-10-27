@@ -19,7 +19,7 @@ AI has made writing code fast. The slow parts are now the human-speed steps arou
 Teams that adopt this way of working end up with a chain of committed files for every feature: `intent.md`, `spec.md`, `plan.md`, the code and its tests, and a pull request with review findings. The chain is a real audit trail. It is also nearly invisible to the people who most need it:
 
 1. **Product managers and leaders do not read Git.** The decisions that need them (accept this intent, approve this spec, merge this plan) sit in pull requests they never open.
-2. **Each Claude surface holds one piece of the story.** Design happens in one place, specification in another, building in a third. Nobody sees the flow end to end.
+2. **Each AI tool holds one piece of the story.** Design happens in one tool, specification in another, building in a third, often with different agents and models. Nobody sees the flow end to end.
 3. **Plan and reality drift silently.** A plan says three subtasks and two ship. Nothing flags it until someone diffs the pull request by hand.
 4. **Governance is by hope, not evidence.** Hooks, reviews and gates exist, but nobody can see whether they were used.
 5. **Practitioners already track this by hand.** Spec files with hand-maintained statuses, README claims that nothing verifies. The need is real, and the workaround is manual.
@@ -49,17 +49,18 @@ Chain is built using its own chain. Its vision, spec and architecture decisions 
 6. **Transparent by construction.** Every Chain decision has an ADR before code. Every Chain feature travels the chain.
 7. **Proportionate.** Small changes take a light path. A method that is too heavy gets skipped, and then nobody can see the work ([ADR-0011](../../docs/adr/0011-light-path-for-small-changes.md)).
 8. **Evidence for claims.** Statements about other tools link to a source in the [landscape](../../docs/landscape.md).
+9. **Agent-neutral.** Chain reads artifacts, harness and traces. It works with any coding agent, interface or model, and no rule depends on which one was used ([ADR-0013](../../docs/adr/0013-agent-neutral.md)).
 
 ## Users and systems concerned
 
 | Who | What they need from Chain |
 |---|---|
-| Product builder (solo or small team) | See the flow from design to shipped, start the next Claude Code session with the right context |
+| Product builder (solo or small team) | See the flow from design to shipped, start the next coding-agent session with the right context |
 | Product manager / product owner | See which intents and specs wait for acceptance, and whether execution matches the plan |
 | Product leader | See capabilities and health across several products, in a form fit for a review meeting |
 | Platform / engineering lead | Check that the harness (hooks, review policy, skills) is in place and used |
 
-Systems: GitHub (repositories, pull requests, review findings), Claude Design, Claude.ai and Claude Code (as producers of artifacts and session activity), and Jira, Linear and Azure DevOps (as linked systems of work items).
+Systems: GitHub (repositories, pull requests, review findings), AI tools of any vendor and model (design tools, chat assistants, coding agents such as Claude Code or GitHub Copilot) as producers of artifacts and session activity, and Jira, Linear and Azure DevOps (as linked systems of work items).
 
 ## Capabilities
 
@@ -67,13 +68,13 @@ Capabilities are written as user goals. Progress is delivery-based in v1: a capa
 
 | Slug | Capability | Persona |
 |---|---|---|
-| [`flow-visibility`](../../capabilities/flow-visibility.md) | Product builder can visualize the flow of work between Claude interfaces, from design to shipped | Builder |
+| [`flow-visibility`](../../capabilities/flow-visibility.md) | Product builder can visualize the flow of work across AI tools, from design to shipped | Builder |
 | [`drift-prevention`](../../capabilities/drift-prevention.md) | Product builders and teams can follow the AI SDLC and avoid drift between vision and execution | Builder, PM |
 | [`portfolio-vision`](../../capabilities/portfolio-vision.md) | Product leaders have a portfolio vision of all the features and outcomes from their AI-developed products | Leader |
 | [`linked-work`](../../capabilities/linked-work.md) | Teams keep their existing PM tools and see their work items linked to intents, specs and plans | PM, Platform lead |
-| [`build-transparency`](../../capabilities/build-transparency.md) | Product builder can see what Claude Code did on each feature without reading transcripts | Builder |
+| [`build-transparency`](../../capabilities/build-transparency.md) | Product builder can see what the coding agent did on each feature without reading transcripts | Builder |
 
-The first three come from the original product thesis. The last two were added when the scope was widened to PM-tool links and Claude Code session data. They are marked as proposed in the spec.
+The first three come from the original product thesis. The last two were added when the scope was widened to PM-tool links and coding-agent session data. They are marked as proposed in the spec.
 
 ## Non-goals
 
@@ -97,7 +98,7 @@ The first three come from the original product thesis. The last two were added w
 
 - **Name.** "Chain" is a working name. It needs a trademark, domain and package-name check before the first public release.
 - **Licence.** Not yet chosen. It must be decided before the repository is made public.
-- **Claude Code session data.** Claude Code documents an OpenTelemetry export. A spike tests it first, with a hook as fallback, before the connector is committed to ([ADR-0006](../../docs/adr/0006-claude-code-sessions-via-hooks-metadata-only.md), status: proposed).
+- **Coding-agent session data.** Each agent exposes different metadata: Claude Code documents an OpenTelemetry export; GitHub Copilot links commits to session logs and publishes usage metrics. Spikes S-A and S-H test them before any connector is committed to ([ADR-0006](../../docs/adr/0006-claude-code-sessions-via-hooks-metadata-only.md), status: proposed; [ADR-0013](../../docs/adr/0013-agent-neutral.md)).
 - **Other spec layouts.** Real output from Spec Kit, Kiro and OpenSpec must be inspected before readers are built ([ADR-0012](../../docs/adr/0012-read-other-spec-layouts.md), status: proposed).
 - **Which trackers.** Copilot already posts progress into Jira and Linear. Whether Chain needs its own connectors for them is unproven; Azure DevOps is first.
 - **Light-path thresholds.** Five files and 150 lines are placeholders, to be tuned on Chain's own pull requests.

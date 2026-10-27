@@ -28,13 +28,13 @@ Small changes take a **light path** (a pull request with a declared reason, no i
 
 **Positioning.** Spec-driven tools create the artifacts, and the dashboards found for them read local files only ([landscape](../../docs/landscape.md)). Chain's ground is the **join**: artifact files, pull request state, review findings and drift signals in one read-only view.
 
-It reads two further sources: **Claude Code session metadata** (what the agent did) and **PM-tool work items** (linked by ID). It never writes to any of them in v1.
+It reads two further sources: **coding-agent session metadata** (what the agent did, whichever agent and model) and **PM-tool work items** (linked by ID). It never writes to any of them in v1.
 
 ## 2. Personas and jobs to be done
 
 | Persona | Job to be done | First screen |
 |---|---|---|
-| **Builder** | "When I start a session, I want to know what is in flight and what to hand to Claude Code next." | Capability board |
+| **Builder** | "When I start a session, I want to know what is in flight and what to hand to the coding agent next." | Capability board |
 | **PM / PO** | "I want to know which intents and specs are waiting for my decision, and whether what shipped matches what we agreed." | Waiting queue |
 | **Leader** | "I want one page I can put on a screen in a review, across all our products." | Portfolio |
 | **Platform lead** | "I want to know the harness is in place: review policy, hooks, skills." | Readiness check |
@@ -63,10 +63,10 @@ Capability slugs: `FV` flow-visibility, `DP` drift-prevention, `PV` portfolio-vi
 | F-12 | Feature detail | FV | 1.0 | Chain nodes show state, file path (mono), source surface and last commit; clicking a node opens its preview |
 | F-13 | Artifact preview | FV | 1.0 | Rendered markdown of the artifact at its accepted SHA, with a link to GitHub |
 | F-14 | Waiting-on-a-human queue | FV | 1.0 | Lists every artifact in `proposed` state with its PR, age, requested reviewers; sorted by age |
-| F-15 | Source-surface labelling | FV | 1.0 | Each artifact shows where it was produced (Claude Design, Claude.ai, Claude Code, human, unknown) using the detection ladder in §5.4, with a confidence label |
-| F-16 | Design node | FV | 1.0 | If a feature folder declares a design reference, the chain shows a Claude Design node; otherwise it shows as skipped (dashed), not missing |
+| F-15 | Source-surface labelling | FV | 1.0 | Each artifact shows where it was produced (a coding agent or AI tool named by an agent profile, human, unknown) using the detection ladder in §5.4, with a confidence label. The model is shown only if a trace states it |
+| F-16 | Design node | FV | 1.0 | If a feature folder declares a design reference, the chain shows a design node (any design tool); otherwise it shows as skipped (dashed), not missing |
 | F-17 | Light changes | FV | 1.0 | Pull requests on the light path (§5.5) are listed per repository, and counted under their capability when a `Capability:` line is present, with size shown; they have no lifecycle or health of their own |
-| F-70 | "Start session" prompt | FV | 1.0 | Copies a ready-to-paste Claude Code prompt naming the feature's accepted artifacts and paths (Chain does not write to the repo) |
+| F-70 | "Start session" prompt | FV | 1.0 | Copies a ready-to-paste plain-text prompt, usable in any coding agent, naming the feature's accepted artifacts and paths (Chain does not write to the repo) |
 
 ### 3.3 Prevent drift (capability `DP`)
 
@@ -77,7 +77,7 @@ Capability slugs: `FV` flow-visibility, `DP` drift-prevention, `PV` portfolio-vi
 | F-22 | Review and PR signals | DP | 1.0 | Detects `[compliance]` findings (Important or Block) and a non-empty "Divergences from plan" section in the PR body |
 | F-23 | Drift detail | DP | 1.0 | Each signal shows kind, rule, evidence link (commit, PR or comment) and when it was detected |
 | F-24 | Lead-time and rework metrics | DP | 1.1 | Intent→spec time, plan accepted→merged time, intent acceptance rate, rework counts per feature, from Git only |
-| F-25 | Readiness check | DP | 1.1 | Scores a repo against the harness checklist (§7): `CLAUDE.md`, `REVIEW.md`, skills, hooks, PR template, folder convention |
+| F-25 | Readiness check | DP | 1.1 | Scores a repo against the harness checklist (§7) by role: instructions file, review policy, skills, gates (hooks), PR template, folder convention. Any agent's files satisfy a role (ADR-0013) |
 | F-26 | Signal feedback | DP | 1.1 | A signal can be dismissed with a reason or marked valid; dismissals are stored and shown, never silently dropped |
 | F-27 | Light-path size guard | DP | 1.0 | A light change above `light.max_files` or `light.max_changed_lines` raises `light_path_large` with the counts as evidence (defaults are unvalidated, ADR-0011) |
 
@@ -104,7 +104,7 @@ Capability slugs: `FV` flow-visibility, `DP` drift-prevention, `PV` portfolio-vi
 
 | ID | Feature | Cap. | Rel. | Acceptance criterion |
 |---|---|---|---|---|
-| F-50 | Claude Code ingest | BT | 1.1 | An ingest endpoint with a per-repo token accepts session metadata from a hook script; a template hook ships in `templates/` |
+| F-50 | Agent session ingest | BT | 1.1 | An ingest endpoint with a per-repo token accepts session metadata from each agent's documented export or a fallback hook script, with the allowlist of ADR-0006; a template ships in `templates/` |
 | F-51 | Session timeline | BT | 1.1 | Per feature: number of sessions, duration, models, tool-use counts, whether plan mode was used |
 | F-52 | Hook decision log | BT | 1.1 | Shows blocked and approved gate events (for example a production gate) per feature |
 | F-53 | Cost per feature | BT | 1.2 | Token or cost totals per feature, if the spike confirms the data is available |
@@ -159,7 +159,7 @@ This follows the folder-per-feature convention used in Thiga's AI-native SDLC do
 ```yaml
 ---
 capability: flow-visibility        # links the feature to a capability
-produced_with: claude-ai           # claude-design | claude-ai | claude-code | human
+produced_with: claude-ai           # free label: an agent profile name, another AI tool, or human
 design: https://...                # reference to a design, shown as the design node
 links:                             # work items in other systems
   jira: PROJ-123
@@ -183,6 +183,19 @@ health:
 light:
   max_files: 5                           # unvalidated defaults (ADR-0011)
   max_changed_lines: 150
+agents:                                  # agent profiles: data, not rules (ADR-0013)
+  claude-code:
+    trailers: ["Co-Authored-By: Claude"]
+    branch_prefixes: ["claude/"]
+  github-copilot:
+    authors: ["Copilot"]                 # exact login to confirm in spike S-H
+    trailers: ["Agent-Logs-Url"]
+    branch_prefixes: ["copilot/"]
+harness:                                 # files that satisfy each readiness role
+  instructions: [AGENTS.md, CLAUDE.md, .github/copilot-instructions.md]
+  skills: [.github/skills, .claude/skills, .agents/skills]
+  gates: [.github/hooks, .claude/settings.json]
+  review: [REVIEW.md]
 ```
 
 ### 5.4 Source-surface detection ladder
@@ -190,11 +203,11 @@ light:
 Best effort, first match wins, shown with a confidence label:
 
 1. `produced_with` in frontmatter (explicit).
-2. Commit trailers that identify Claude (for example `Co-Authored-By` naming Claude, or a Claude session link).
-3. Branch prefix `claude/`.
+2. Commit author or trailers matching an agent profile in `chain.yml` (for example `Co-Authored-By` naming Claude, or Copilot's `Agent-Logs-Url`).
+3. Branch prefix matching an agent profile (for example `claude/` or `copilot/`).
 4. Otherwise `unknown`. Chain never guesses beyond this.
 
-Claude Design leaves no Git trace, so its node relies on the `design:` reference (F-16).
+Design tools usually leave no Git trace, so the design node relies on the `design:` reference (F-16). No rule depends on the surface or model detected (ADR-0013).
 
 ### 5.5 Linking a pull request to a feature
 
@@ -268,7 +281,7 @@ A signal is resolved only by a person: dismissed with a reason (F-26) or superse
 
 A signal attaches to a feature, or to a pull request when the change has no feature (light changes). `light_path_large` is the only rule that uses the latter.
 
-**Readiness checklist (F-25):** `CLAUDE.md` with a verification block, `REVIEW.md`, at least one skill in `.claude/skills/`, `.claude/settings.json` with hooks, a PR template, the folder convention, branch protection requiring review (read from the GitHub API where permitted).
+**Readiness checklist (F-25), by role (ADR-0013):** an instructions file with a verification block (any file in `harness.instructions`), a review policy, at least one skill (any folder in `harness.skills`), gates (any location in `harness.gates`), a PR template, the folder convention, branch protection requiring review (read from the GitHub API where permitted).
 
 ## 8. Screens and routes
 
@@ -313,7 +326,8 @@ The first Claude Design export covers the board, capability detail, feature deta
 |---|---|---|
 | PR↔feature linking is inconsistent in real repos | Features show wrong lifecycle | Three linking rules, `Feature:` line in the PR template, unlinked PRs listed separately |
 | Review-finding tag format varies | `compliance_finding` misses or false-fires | Tag format defined in `REVIEW.md`, configurable in `chain.yml`, tested on real findings before 1.0 |
-| Claude Code hook payloads differ from assumptions | Session connector rework | Spike first; connector ships in 1.1, not 1.0 |
+| Agent session data differs from documentation | Session connector rework | Spikes S-A and S-H first; connector ships in 1.1, not 1.0 |
+| Agent profiles go stale as tools change | Mislabelled sources, wrong readiness score | Profiles are config, each default cites a landscape row re-checked quarterly |
 | Vanilla front end gets heavy | Slower delivery | Revisit trigger in ADR-0009: more than 8 views or shared state across views |
 | Source-surface detection is weak | Mislabelled flow | Explicit `produced_with` first, confidence shown, `unknown` allowed |
 | Three sources in v1 widen scope | Late or thin 1.0 | Sources ship in separate releases; the connector seam (ADR-0005) is built in 1.0 |
@@ -326,7 +340,7 @@ The first Claude Design export covers the board, capability detail, feature deta
 
 1. Name, trademark and domain check for "Chain".
 2. Licence for the public repository.
-3. Spike S-A: test Claude Code's OpenTelemetry export first, hook payloads as fallback (ADR-0006).
+3. Spike S-A: test Claude Code's OpenTelemetry export first, hook payloads as fallback (ADR-0006). Spike S-H: same question for GitHub Copilot (ADR-0013).
 4. Spike: reuse the GitHub App's user authorisation for Supabase sign-in, or use a separate OAuth app (ADR-0004).
 5. REST or GraphQL for pull-request batches.
 6. Branch protection is only readable with higher permissions. Is the readiness check allowed to ask for them, or does it stay optional?
@@ -341,7 +355,7 @@ The first Claude Design export covers the board, capability detail, feature deta
 | Plan: capture as `intent.md` | F-03, F-14 (intent proposed and accepted) |
 | Design: requirements and design | F-03, F-16 (design node) |
 | Build: plan mode, `plan.md` committed, plan synced in the same commit | F-21 (`plan_revised`), F-70 |
-| Build: hooks, skills, `CLAUDE.md` | F-25, F-52 |
+| Build: hooks, skills, instructions file | F-25, F-52 |
 | Test: feedback loop, verification evidence | PR template "Verification", F-51 |
 | Deploy: AI in the PR review loop, `REVIEW.md` | F-22 |
 | Deploy: hooks as approval gates | F-52, `gate_bypassed` |

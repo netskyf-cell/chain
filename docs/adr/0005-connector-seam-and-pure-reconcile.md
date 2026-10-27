@@ -7,7 +7,7 @@
 
 ## Context
 
-Chain will read three kinds of source in its first releases: GitHub, Claude Code session data and PM-tool work items. More will follow (other Claude surfaces, other trackers). If each source implemented its own status logic, rules would be duplicated and results would depend on which source was read first. Drift signals have to be defensible, which means the same inputs must always give the same answer.
+Chain will read three kinds of source in its first releases: GitHub, Claude Code session data and PM-tool work items. More will follow (other coding agents, other trackers). If each source implemented its own status logic, rules would be duplicated and results would depend on which source was read first. Drift signals have to be defensible, which means the same inputs must always give the same answer.
 
 ## Decision
 

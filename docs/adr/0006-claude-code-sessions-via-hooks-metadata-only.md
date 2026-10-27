@@ -1,7 +1,7 @@
-# ADR-0006: Claude Code session data comes from metadata exports only
+# ADR-0006: Coding-agent session data comes from metadata exports only
 
 - **Status:** **proposed** (spike S-A required before acceptance)
-- **Date:** 2026-10-01. Amended 2026-10-02 (OpenTelemetry first).
+- **Date:** 2026-10-01. Amended 2026-10-02 (OpenTelemetry first). Generalised 2026-10-27 by [ADR-0013](0013-agent-neutral.md): the rules below apply to every agent; Claude Code is the first source studied, GitHub Copilot follows in spike S-H.
 - **Deciders:** Product owner
 - **Related:** capability `build-transparency`, spec F-50–F-53, architecture §6.3. Evidence: [landscape](../landscape.md)
 

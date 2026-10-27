@@ -8,16 +8,16 @@ Chain is a small read-only pipeline with a visual layer on top:
 
 > **Connectors** observe sources → **observations** are normalised → a pure **reconcile** function derives state and signals → the **web app** renders the derived tables.
 
-The one idea that holds it together: **connectors only observe, and one pure function decides.** Adding a source (Jira, Linear, a new Claude surface) means adding a connector, not changing the rules. Rules are testable without a network (ADR-0005).
+The one idea that holds it together: **connectors only observe, and one pure function decides.** Adding a source (Jira, Linear, a new coding agent) means adding a connector, not changing the rules. Rules are testable without a network (ADR-0005).
 
 ## 2. Context
 
 ```mermaid
 flowchart LR
   subgraph produce["Where work is produced"]
-    CD["Claude Design"]
-    CAI["Claude.ai"]
-    CC["Claude Code"]
+    CD["Design tool"]
+    CAI["Chat assistant"]
+    CC["Coding agent<br/>Claude Code, GitHub Copilot…"]
   end
   subgraph track["Where work is tracked"]
     PM["Jira / Linear / Azure DevOps"]
@@ -34,7 +34,7 @@ flowchart LR
   UI --> USERS["Builder, PM, Leader"]
 ```
 
-Chain has no write path into GitHub, Claude or the PM tools. Its only writes are to its own database.
+Chain has no write path into GitHub, the AI tools or the PM tools. Its only writes are to its own database.
 
 ## 3. Components
 
@@ -42,7 +42,7 @@ Chain has no write path into GitHub, Claude or the PM tools. Its only writes are
 |---|---|---|
 | **Web app** | Renders boards, detail views, queue, portfolio. Reads derived tables only. | `public/` |
 | **API functions** | HTTP entry points: webhook receiver, ingest endpoint, data endpoints, demo scan | `api/` |
-| **Connectors** | Turn one source into observations (`github`, `claude-code`, `pm-link`) | `lib/connectors/` |
+| **Connectors** | Turn one source into observations (`github`, `agent-session`, `pm-link`) | `lib/connectors/` |
 | **Reconcile core** | Pure function: observations in, feature state and signals out | `lib/reconcile/` |
 | **Parsers** | Artifact frontmatter, PR body sections (including the `Light change:` line), review-finding tags | `lib/parse/` |
 | **Format readers** (1.1) | Turn another tool's spec layout into the same observations as the native reader (ADR-0012) | `lib/parse/formats/` |
@@ -54,7 +54,7 @@ Chain has no write path into GitHub, Claude or the PM tools. Its only writes are
 ```js
 /**
  * @typedef {Object} Observation
- * @property {'github'|'claude-code'|'pm-link'} source
+ * @property {'github'|'agent-session'|'pm-link'} source
  * @property {string} kind        e.g. 'artifact_seen', 'pr_state', 'review_finding', 'commit', 'session_ended', 'link_status'
  * @property {string} repoId
  * @property {string} [featureSlug]
@@ -118,9 +118,9 @@ sequenceDiagram
 
 No installation exists, so no webhook. The demo scan runs on request: it reads through a server-held read-only token, uses ETag conditional requests, and caches results for 5 minutes in Supabase. A response that returns "not modified" does not count against the primary rate limit.
 
-### 6.3 Claude Code sessions (ingest path, release 1.1)
+### 6.3 Coding-agent sessions (ingest path, release 1.1)
 
-Metadata reaches `/api/ingest/claude-code` with a per-repo token, from one of two sources chosen by spike S-A (ADR-0006): Claude Code's documented OpenTelemetry export (tested first), or a local fallback hook that computes aggregates. The endpoint keeps an **allowlist of fields** and drops any prompt, response or tool-content field on receipt. Transcripts are never stored.
+Metadata reaches `/api/ingest/agent-session` with a per-repo token and an agent profile name (ADR-0013). Sources are chosen per agent by spikes: for Claude Code (S-A), its documented OpenTelemetry export first, then a local fallback hook; for GitHub Copilot (S-H), its session-log links and usage metrics. The endpoint keeps an **allowlist of fields** and drops any prompt, response or tool-content field on receipt. Transcripts are never stored.
 
 ## 7. Data model
 
@@ -135,7 +135,7 @@ All tables have `created_at` and `updated_at`. RLS is on for every table. The fu
 | `pull_requests` | PR facts: state, merged time, last activity, requested changes, checks state, `kind` (`feature`, `light`, `unlinked`), linked feature or capability, changed files and lines |
 | `review_findings` | One row per finding: PR, pass, severity, URL. No finding body stored beyond a short excerpt |
 | `signals` | Drift and governance signals: kind, severity, evidence URL, detected time, resolution and reason. Attached to a repo, and to a feature or a pull request (light changes have no feature) |
-| `sessions` | Claude Code aggregates: times, model, tool counts, plan-mode flag. No content |
+| `sessions` | Coding-agent aggregates: agent profile, times, model if stated, tool counts, plan-mode flag. No content |
 | `hook_decisions` | Gate events: hook name, decision, time |
 | `links` | Work-item links: system, external id, URL, last known status |
 | `observations` | Append-only log of normalised observations: the audit trail of how state was derived |
@@ -181,7 +181,7 @@ chain/
 ├── intent/
 │   ├── README.md                      ✅ convention
 │   └── chain/{intent,spec}.md         ✅ product intent and umbrella spec
-│       └── plan.md                    ◻ produced by Claude Code plan mode
+│       └── plan.md                    ◻ produced in the coding agent's plan mode
 ├── docs/
 │   ├── architecture.md                ✅ this file
 │   ├── agile-mapping.md               ✅
@@ -201,7 +201,7 @@ chain/
 ├── public/                            ◻ S0   index.html, css/, js/ (router, views/)
 ├── api/                               ◻ S0   webhooks/, ingest/, demo.js, data endpoints
 ├── lib/
-│   ├── connectors/                    ◻ S0   github.js, (1.1) claude-code.js, (1.2) pm-link.js
+│   ├── connectors/                    ◻ S0   github.js, (1.1) agent-session.js, (1.2) pm-link.js
 │   ├── reconcile/                     ◻ S1   state.js, signals/*.js (one file per rule)
 │   ├── parse/                         ◻ S0   artifact.js, pr-body.js, findings.js
 │   │   └── formats/                   ◻ 1.1  speckit.js, kiro.js, openspec.js (ADR-0012)

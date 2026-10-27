@@ -57,7 +57,7 @@ public/ api/ lib/   application code (not yet created)
 | Release | Theme |
 |---|---|
 | 1.0 | Read the chain: GitHub files and PRs, flow view, waiting list, drift rules |
-| 1.1 | See the build: Claude Code session metadata, readiness check, readers for other spec layouts |
+| 1.1 | See the build: coding-agent session metadata, readiness check, readers for other spec layouts |
 | 1.2 | Link the work: Azure DevOps first; Jira and Linear if a need is confirmed |
 | 2 | Teams |
 | 3 | Organisations |

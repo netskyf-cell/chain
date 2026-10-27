@@ -6,8 +6,8 @@ The working name in the export is a placeholder ("Specline"). The product name i
 
 ## Revisions to request in the next design round
 
-1. Show the **source surface** on each chain node (Claude.ai, Claude Code, Claude Design, human), with a confidence label.
-2. Add a **Start session** action on a feature that hands context to Claude Code.
+1. Show the **source surface** on each chain node (the agent or AI tool named by its profile, or human), with a confidence label.
+2. Add a **Start session** action on a feature that hands context to any coding agent.
 3. Portfolio view across **multiple products**, grouped by capability.
 4. **New capability** modal.
 5. Sign-in: GitHub App install flow, not OAuth scopes (ADR-0004).

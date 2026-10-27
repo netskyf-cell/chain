@@ -1,15 +1,15 @@
 ---
 slug: build-transparency
-statement: Product builder can see what Claude Code did on each feature without reading transcripts
+statement: Product builder can see what the coding agent did on each feature without reading transcripts
 owner: fgilbert
 target: 2027-Q1
 ---
 
 # Capability: build-transparency
 
-> Product builder can see what Claude Code did on each feature without reading transcripts.
+> Product builder can see what the coding agent did on each feature without reading transcripts.
 
-**Proposed.** Added when the scope was widened to Claude Code session data. Depends on a spike ([ADR-0006](../docs/adr/0006-claude-code-sessions-via-hooks-metadata-only.md)).
+**Proposed.** Added when the scope was widened to coding-agent session data. Depends on spikes S-A and S-H ([ADR-0006](../docs/adr/0006-claude-code-sessions-via-hooks-metadata-only.md), [ADR-0013](../docs/adr/0013-agent-neutral.md)).
 
 ## Why this matters
 
