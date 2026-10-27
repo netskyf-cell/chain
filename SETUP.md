@@ -3,11 +3,18 @@
 Order follows the build slices. Do each step only when its slice starts.
 
 ## S0 — walking skeleton
-1. Install Node 20+.
-2. `npm install` (once `package.json` exists).
-3. `npm test` runs the parser against `fixtures/`.
-4. Open the app locally; it renders a fixture repository, then a public repository through the demo endpoint.
-5. **Demo token:** create a fine-grained GitHub token with read-only access to public repositories only. Store it as `GITHUB_DEMO_TOKEN` in a local `.env` (never committed) and later on Vercel.
+
+**Run it locally**
+1. Install Node 20 or later.
+2. In the repository folder: `npm install`, then `npm test` (all tests run without network).
+3. Optional: copy `.env.example` to `.env` and paste a demo token (step 5). Without it, GitHub allows 60 calls per hour from your address, enough to try it.
+4. `npm run dev`, then open http://localhost:3000/#/demo and paste `netskyf-cell/chain`.
+
+**Put it online (Vercel)**
+5. **Demo token:** on GitHub, Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate. Repository access: *Public repositories (read-only)*. No permissions to add. Copy the token once; GitHub never shows it again.
+6. On vercel.com, sign in with GitHub, **Add New → Project**, import `chain`. Vercel reads `vercel.json`: no build step, static files from `public/`, the function from `api/`.
+7. In the project, **Settings → Environment Variables**: add `GITHUB_DEMO_TOKEN` with the token, for Production and Preview. Redeploy.
+8. Open `https://<your-project>.vercel.app/#/demo`. Every merge to `main` redeploys automatically.
 
 ## S1 — state, queue and PR classification
 1. **Supabase:** create a dedicated project. Run `migrations/001_initial_schema.sql` in the SQL editor (a person, not an agent).

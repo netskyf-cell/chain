@@ -57,4 +57,4 @@ Before saying a task is done: run the tests (`npm test`), open the page in a bro
 | Hardcode a GitHub token | Use the App, demo token server-side only |
 
 ## Current sprint
-Slice S0 — walking skeleton: parse this repository's own `intent/` and render one feature's chain (F-04, F-03, F-10, F-12).
+Slice S0 — walking skeleton: built (`intent/s0-walking-skeleton/`). Demo: `npm run dev`, then `/#/demo?repo=netskyf-cell/chain`. Next: S1 intent (state, queue, PR classification).
