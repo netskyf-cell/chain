@@ -1,0 +1,4 @@
+---
+slug: full
+---
+# Spec: full
