@@ -1,0 +1,16 @@
+{
+  "name": "chain",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Decision and transparency layer on top of GitHub",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "dev": "node dev-server.js"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
+  }
+}

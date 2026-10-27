@@ -1,0 +1,1 @@
+# Spec without frontmatter
