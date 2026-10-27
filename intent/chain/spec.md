@@ -339,7 +339,7 @@ The first Claude Design export covers the board, capability detail, feature deta
 ## 12. Open questions
 
 1. Name, trademark and domain check for "Chain".
-2. Licence for the public repository.
+2. ~~Licence for the public repository.~~ Decided: MIT.
 3. Spike S-A: test Claude Code's OpenTelemetry export first, hook payloads as fallback (ADR-0006). Spike S-H: same question for GitHub Copilot (ADR-0013).
 4. Spike: reuse the GitHub App's user authorisation for Supabase sign-in, or use a separate OAuth app (ADR-0004).
 5. REST or GraphQL for pull-request batches.
