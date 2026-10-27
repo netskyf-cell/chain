@@ -70,4 +70,4 @@ Built on ideas from Anthropic's AI-native SDLC playbook and on the MIT-licensed 
 
 ## Licence
 
-To be decided before the first public release.
+[MIT](LICENSE).
