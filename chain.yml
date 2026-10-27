@@ -11,3 +11,16 @@ health:
 light:
   max_files: 5                  # unvalidated defaults (ADR-0011)
   max_changed_lines: 150
+agents:                         # agent profiles: data, not rules (ADR-0013)
+  claude-code:
+    trailers: ["Co-Authored-By: Claude"]
+    branch_prefixes: ["claude/"]
+  github-copilot:
+    authors: ["Copilot"]        # exact login to confirm in spike S-H
+    trailers: ["Agent-Logs-Url"]
+    branch_prefixes: ["copilot/"]
+harness:                        # files that satisfy each readiness role
+  instructions: [AGENTS.md, CLAUDE.md, .github/copilot-instructions.md]
+  skills: [.github/skills, .claude/skills, .agents/skills]
+  gates: [.github/hooks, .claude/settings.json]
+  review: [REVIEW.md]

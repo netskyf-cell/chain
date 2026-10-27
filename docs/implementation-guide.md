@@ -9,7 +9,7 @@ The method is the product's own: nothing is built before its intent, spec and pl
 Think of a train station. GitHub holds the timetable files. Chain is the departure board: it reads the timetable and shows what is on time, what is late and what waits for a decision. It never drives a train.
 
 ```
-Claude Design / Claude.ai / Claude Code
+Design tool / chat assistant / coding agent (Claude Code, GitHub Copilot…)
         │ write files, open pull requests
         ▼
 GitHub  ── intent.md, spec.md, plan.md, PRs, review findings
@@ -27,7 +27,7 @@ Web app  (the board people read)
 | Piece | Role | What you need to know |
 |---|---|---|
 | GitHub | The truth: files and pull requests | A branch is a draft copy. A pull request asks a person to accept it. Merging is the acceptance |
-| Claude Code | Writes the code from the accepted plan | It obeys `CLAUDE.md`, uses the skills in `.claude/skills/`, and is stopped by the hooks in `.claude/hooks/` |
+| Coding agent | Writes the code from the accepted plan | Claude Code obeys `CLAUDE.md`; GitHub Copilot reads `AGENTS.md` or `.github/copilot-instructions.md`. Both read the skills in `.claude/skills/`. Hooks stop either from crossing a gate |
 | Vercel | Serves `public/` and runs `api/` functions | Secrets live in its environment variables, never in files |
 | Supabase | Database, sign-in, row-level security | RLS means a table refuses everyone by default, then opens by rule |
 | Chain (this repo) | Reads, derives, shows | Read-only toward GitHub and PM tools |
@@ -38,13 +38,13 @@ Web app  (the board people read)
 2. A hard-to-reverse decision gets an ADR first. Skill: `adr`.
 3. Small fixes use the light path: `Light change: <reason>` in the PR body, under 5 files and 150 lines ([ADR-0011](adr/0011-light-path-for-small-changes.md)).
 4. Branch `claude/intent-<slug>`. One pull request per group of plan steps. You accept by merging.
-5. A person pushes to production and applies migrations. The hooks block Claude from doing it.
+5. A person pushes to production and applies migrations. The hooks block the agent from doing it.
 6. A claim about another tool links to a row in [landscape](landscape.md).
 7. Status is never written in a file. It comes from pull request state ([ADR-0003](adr/0003-status-derived-from-pr-state.md)).
 
 ## 3. The loop for every slice
 
-| Step | You do | Claude Code does | Done when |
+| Step | You do | The coding agent does | Done when |
 |---|---|---|---|
 | 1 Intent | Say the goal | Branch, `intent.md` via the `intent` skill, PR | You merge the PR |
 | 2 Spec | Review criteria | `spec.md` via the `spec` skill, PR | Every criterion is testable; you merge |
@@ -54,7 +54,7 @@ Web app  (the board people read)
 | 6 Review | Read findings | Review passes from `REVIEW.md` | No Important findings left |
 | 7 Merge | Merge | Nothing | Slice is `shipped` on Chain's own board |
 
-Prompts to paste into Claude Code, opened in the cloned repository:
+Prompts to paste into your coding agent (Claude Code, or GitHub Copilot in agent mode), opened in the cloned repository. Whatever the model, they work as written:
 
 **Intent**
 ```
@@ -142,7 +142,7 @@ Migration note: `migrations/001_initial_schema.sql` has not been applied anywher
 
 | Trap | Instead |
 |---|---|
-| Letting Claude Code start building after the intent | Stop at each merge; the prompts above end with "then stop" |
+| Letting the agent start building after the intent | Stop at each merge; the prompts above end with "then stop" |
 | Writing a status in a file | Derive it; ADR-0003 |
 | Putting a rule inside a connector | Connectors only observe; rules live in `reconcile` |
 | Calling an AI model to judge drift | Not in v1; ADR-0008 |

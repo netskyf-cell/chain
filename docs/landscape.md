@@ -45,6 +45,21 @@ Azure DevOps was not covered by the searches behind this document.
 | It exports events including hook registration and execution, skill activation and permission-mode changes. | same |
 | Prompts, responses and tool content are redacted unless explicitly enabled by environment variables. Repository identity is included only when enabled. | same |
 
+### Coding-agent harness and traces
+
+Retrieved **2026-10-27**. Basis for the agent profiles and readiness roles ([ADR-0013](adr/0013-agent-neutral.md)).
+
+| Fact | Source |
+|---|---|
+| Agent skills (`SKILL.md` with `name` and `description`) are an open standard. VS Code reads project skills from `.github/skills/`, `.claude/skills/` and `.agents/skills/`. Listed agents include GitHub Copilot in VS Code, Copilot CLI, the Copilot app and Copilot cloud agent. | [VS Code docs](https://code.visualstudio.com/docs/agent-customization/agent-skills) |
+| Copilot customization files: `.github/copilot-instructions.md`, `.github/instructions/*.instructions.md`, `AGENTS.md` (listed for agents), `.github/prompts/*.prompt.md`, `.github/agents/*.md`, `.github/hooks/*.json`. The page does not mention `CLAUDE.md`. | [GitHub docs, customization cheat sheet](https://docs.github.com/enterprise-cloud@latest/copilot/reference/customization-cheat-sheet) |
+| VS Code agent hooks (preview) read `.github/hooks/*.json`, and can read `.claude/settings.json` hooks. Events include session start and end, and before and after tool use. | [VS Code docs](https://code.visualstudio.com/docs/agent-customization/hooks) |
+| Copilot cloud agent names branches `copilot/<short-description>`. | [GitHub changelog, 2025-10-16](https://github.blog/changelog/2025-10-16-copilot-coding-agent-uses-better-branch-names-and-pull-request-titles) |
+| Copilot cloud agent commits are authored by Copilot, with the assigning person as co-author, and carry an `Agent-Logs-Url` trailer linking to the session logs. | [GitHub changelog, 2026-03-20](https://github.blog/changelog/2026-03-20-trace-any-copilot-coding-agent-commit-to-its-session-logs) |
+| Repository-level Copilot usage metrics (GA 2026-07-17) report pull requests created and merged by the cloud agent, per repository per day, for organisation or enterprise roles with metrics access. | [GitHub changelog, 2026-07-17](https://github.blog/changelog/2026-07-17-repository-level-github-copilot-usage-metrics-generally-available/) |
+
+Not established: what Copilot agent mode in VS Code (as opposed to the cloud agent) leaves in Git, and the exact author login on commits. Spike S-H checks both.
+
 ### Research on spec-driven development
 
 | Fact | Source |

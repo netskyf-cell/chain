@@ -30,7 +30,7 @@ Read this table as a **mapping of intent**, not an equivalence. Chain does not r
 | Product manager / owner | Writing intents, accepting by merging, prioritising in the PM tool | Everything waiting for their decision in one place, and whether shipped work matches what they accepted |
 | Product leader | Reviewing outcomes with teams | A portfolio view without opening repositories |
 | Scrum master / agile coach | Facilitating, coaching on flow | Evidence of where flow stalls (waiting age, blocked, rework) instead of anecdotes |
-| Engineer / builder | Working in Claude Code and Git | Their chain rendered for non-engineers, with no extra reporting |
+| Engineer / builder | Working with a coding agent and Git | Their chain rendered for non-engineers, with no extra reporting |
 
 ## What Chain deliberately does not do
 
