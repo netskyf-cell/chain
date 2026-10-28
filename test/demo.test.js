@@ -49,12 +49,32 @@ test('AC-11: the model carries S1a state from pull requests', async () => {
   // S0's build PRs were merged after its plan, but none says "Plan complete: yes"
   // (the marker was introduced after S0), so S0 honestly reads "building".
   assert.equal(s0.lifecycle, 'building');
-  assert.deepEqual(s0.health, { status: 'on track', reason: 'No open artifact PR is blocked' });
+  // S1a fields unchanged. Health is S2's: S0 is in drift (see the AC-9 test).
+  assert.equal(s0.health.status, 'drift');
   assert.deepEqual(r.body.model.queue, []);
   const pr8 = r.body.model.prs.find((p) => p.number === 8);
   // PR #8 says "Light change:" but also edits intent files: rule 1 (files) wins over rule 4.
   assert.equal(pr8.kind, 'feature');
   assert.deepEqual(pr8.features, ['chain']);
+});
+
+test('AC-9: on Chain\'s own recorded history, the expected signals appear', async () => {
+  const { handler } = setup('ok', { start: Date.parse('2026-10-28T15:00:00Z') });
+  const r = await call(handler, '/api/demo?repo=netskyf-cell/chain');
+  assert.equal(r.status, 200);
+  assert.equal(r.body.historyPartial, false);
+  // PRs #6, #7, #9 (S0) and #13 (S1a) declared divergences; neither plan was updated after.
+  assert.deepEqual(r.body.model.signals.map((s) => [s.kind, s.feature, s.pr]), [
+    ['pr_declares_divergence', 's1-state', 13],
+    ['pr_declares_divergence', 's0-walking-skeleton', 9],
+    ['pr_declares_divergence', 's0-walking-skeleton', 7],
+    ['pr_declares_divergence', 's0-walking-skeleton', 6],
+  ]);
+  const byslug = Object.fromEntries(r.body.model.features.map((f) => [f.slug, f.health]));
+  assert.equal(byslug.chain.status, 'on track', 'chain spec was updated after its intent: no rework');
+  assert.match(byslug['s0-walking-skeleton'].reason, /^PR #9 diverges from the plan: Added `public\/js\/dom.js`/);
+  assert.equal(byslug['s1-state'].status, 'drift');
+  assert.ok(!r.body.model.signals.some((s) => s.kind === 'gate_bypassed'), 'every artifact commit came through a PR');
 });
 
 test('accepts a full GitHub URL as well as owner/name', async () => {
