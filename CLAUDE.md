@@ -45,7 +45,7 @@ Before saying a task is done: run the tests (`npm test`), open the page in a bro
 ## Working method
 1. No code before an intent, a spec and a merged plan (skills: `intent`, `spec`).
 2. Hard-to-reverse decision → ADR first (skill: `adr`).
-3. Branch `claude/intent-<slug>`; one PR per plan step group; the owner accepts by merging. A small fix (a typo, a dependency bump, a bug with no change of intent) may use the light path: no intent folder, and the PR body has `Light change: <reason>`. Keep it under 5 files and 150 lines.
+3. Branch `claude/intent-<slug>`; one PR per plan step group; the owner accepts by merging. A small fix (a typo, a dependency bump, a bug with no change of intent) may use the light path: no intent folder, and the PR body has `Light change: <reason>`. Keep it under 5 files and 150 lines. The last build PR of a plan carries `Plan complete: yes`; that is what marks the feature `shipped`.
 4. A person pushes to production and applies migrations. Hooks enforce this.
 
 ## Anti-patterns

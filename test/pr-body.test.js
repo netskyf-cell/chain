@@ -6,38 +6,45 @@ const { parsePrBody } = require('../lib/parse/pr-body');
 
 test('reads a feature PR', () => {
   assert.deepEqual(parsePrBody('## Type\n\nFeature: s1-state\n\nCapability: flow-visibility\n'), {
-    feature: 's1-state', light: null, capability: 'flow-visibility',
+    feature: 's1-state', light: null, capability: 'flow-visibility', planComplete: false,
   });
 });
 
 test('reads a light change with its reason', () => {
   assert.deepEqual(parsePrBody('Light change: fix a typo in the README\nCapability: alpha'), {
-    feature: null, light: 'fix a typo in the README', capability: 'alpha',
+    feature: null, light: 'fix a typo in the README', capability: 'alpha', planComplete: false,
   });
 });
 
 test('ignores template placeholders in angle brackets', () => {
   const template = 'Feature: <slug>\nLight change: <one-line reason: a small fix>\nCapability: <slug, optional>';
-  assert.deepEqual(parsePrBody(template), { feature: null, light: null, capability: null });
+  assert.deepEqual(parsePrBody(template), { feature: null, light: null, capability: null, planComplete: false });
 });
 
 test('ignores lines inside HTML comments', () => {
   const body = '<!-- Feature: hidden\nLight change: also hidden -->\nFeature: visible';
-  assert.deepEqual(parsePrBody(body), { feature: 'visible', light: null, capability: null });
+  assert.deepEqual(parsePrBody(body), { feature: 'visible', light: null, capability: null, planComplete: false });
 });
 
 test('ignores empty values and is case-insensitive on the label', () => {
-  assert.deepEqual(parsePrBody('feature:   \nLIGHT CHANGE: bump yaml'), { feature: null, light: 'bump yaml', capability: null });
+  assert.deepEqual(parsePrBody('feature:   \nLIGHT CHANGE: bump yaml'), { feature: null, light: 'bump yaml', capability: null, planComplete: false });
 });
 
 test('takes the first real value and handles Windows line endings', () => {
   assert.deepEqual(parsePrBody('Feature: <slug>\r\nFeature: first\r\nFeature: second\r\n'), {
-    feature: 'first', light: null, capability: null,
+    feature: 'first', light: null, capability: null, planComplete: false,
   });
 });
 
 test('null, undefined and empty bodies give all nulls', () => {
   for (const body of [null, undefined, '']) {
-    assert.deepEqual(parsePrBody(body), { feature: null, light: null, capability: null });
+    assert.deepEqual(parsePrBody(body), { feature: null, light: null, capability: null, planComplete: false });
   }
+});
+
+test('Plan complete: yes marks the last build PR of a plan', () => {
+  assert.equal(parsePrBody('Feature: x\nPlan complete: yes').planComplete, true);
+  assert.equal(parsePrBody('Feature: x\nplan complete: Yes').planComplete, true);
+  assert.equal(parsePrBody('Feature: x\nPlan complete: no').planComplete, false);
+  assert.equal(parsePrBody('Plan complete: <yes on the last build PR of a plan, otherwise delete this line>').planComplete, false);
 });

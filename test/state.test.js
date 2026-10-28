@@ -93,12 +93,18 @@ test('AC-6: lifecycle', async () => {
 test('AC-6: shipped needs the build PR merged after the plan was accepted', async () => {
   const early = { ...PRS.merged[2], mergedAt: '2026-09-25T12:00:00Z' }; // build before plan PR #5
   const f = byslug(await run({ ...PRS, merged: [PRS.merged[0], PRS.merged[1], early] }));
-  assert.equal(f.full.lifecycle, 'planned');
+  assert.equal(f.full.lifecycle, 'planned', 'a build merged before the plan does not count');
 });
 
 test('AC-6: plan acceptance PR outside the window: any merged build PR counts', async () => {
   const f = byslug(await run({ ...PRS, merged: [PRS.merged[0], PRS.merged[2]] }));
   assert.equal(f.full.lifecycle, 'shipped');
+});
+
+test('AC-6: a merged build PR without "Plan complete: yes" keeps the feature building', async () => {
+  const partOne = { ...PRS.merged[2], body: 'Feature: full' };
+  const f = byslug(await run({ ...PRS, merged: [PRS.merged[0], PRS.merged[1], partOne] }));
+  assert.equal(f.full.lifecycle, 'building');
 });
 
 test('AC-6: building when the plan is accepted and a build PR is open', async () => {

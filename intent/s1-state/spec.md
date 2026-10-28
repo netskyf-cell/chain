@@ -16,6 +16,7 @@ The intent was merged without written answers. These follow the intent's own rec
 | 1 | Split S1 | **Yes.** This spec is S1a: state computed on demand, no database, no GitHub App. S1b (Supabase, App, webhooks, F-05) gets its own intent later. |
 | 2 | Merged PRs to read | The **30** most recently closed pull requests, not 100. Reason found while specifying: deciding `shipped` and linking by changed files needs each merged PR's file list, one call per PR. 30 keeps a scan under about 70 calls. |
 | 3 | `blocked` without checks | Requested changes and staleness only. Checks state comes in S1b. |
+| 4 | When is a feature `shipped`? | Added 2026-10-28 by the owner, after testing on real data: a plan is built in several PRs, so the first merged build PR is not the end. The **last** build PR declares `Plan complete: yes` in its body (PR template). Until then the feature is `building`. |
 
 ## How it works
 
@@ -77,8 +78,8 @@ Revising counts as accepted.
 
 | Lifecycle | Rule, checked top to bottom |
 |---|---|
-| `shipped` | Plan accepted, and a merged build PR linked to the feature was merged after the plan's acceptance. If the plan's acceptance PR is outside the 30-PR window, any merged linked build PR counts |
-| `building` | Plan accepted, and a linked build PR is open |
+| `shipped` | Plan accepted, and a merged build PR linked to the feature, merged after the plan's acceptance, has the line `Plan complete: yes`. If the plan's acceptance PR is outside the 30-PR window, any such merged build PR counts |
+| `building` | Plan accepted, and a linked build PR is open, or merged without `Plan complete: yes` |
 | `planned` | Spec accepted (plan absent, proposed, or accepted with no build PR yet) |
 | `specified` | Intent accepted |
 | `idea` | Intent proposed |
@@ -108,7 +109,7 @@ Every artifact in `proposed` or `revising`, one row per artifact, with: feature,
 | AC-3 | A feature that exists only in an open PR appears with intent `proposed` | T |
 | AC-4 | PR linking follows rules 1 to 5, in order, including placeholders and multi-slug PRs | T |
 | AC-5 | Artifact PR versus build PR is decided by changed paths | T |
-| AC-6 | Lifecycle follows the table, including `shipped` with and without the plan's acceptance PR in the window | T |
+| AC-6 | Lifecycle follows the table, including `shipped` with and without the plan's acceptance PR in the window, and `building` after a merged build PR without `Plan complete: yes` | T |
 | AC-7 | Health is `blocked` for changes requested and for staleness beyond `stale_days`, with the reason; `on track` otherwise | T |
 | AC-8 | Queue rows: one per proposed or revising artifact, with PR, age and requested reviewers, oldest first | T |
 | AC-9 | `reconcile()` is deterministic: same inputs and same `now`, same output | T |

@@ -223,7 +223,7 @@ A value still wrapped in angle brackets (for example `<slug>`) is a template pla
 
 ### 5.6 Pull request template
 
-Chain ships a template ([`.github/pull_request_template.md`](../../.github/pull_request_template.md)) with a **Type** line (`Feature:` or `Light change:`), a **Plan match** and a **Divergences from plan** section. A non-empty divergences section is a drift signal (F-22).
+Chain ships a template ([`.github/pull_request_template.md`](../../.github/pull_request_template.md)) with a **Type** line (`Feature:` or `Light change:`), a **Plan complete** line (`yes` on the last build PR of a plan), a **Plan match** and a **Divergences from plan** section. A non-empty divergences section is a drift signal (F-22).
 
 ## 6. State model
 
@@ -252,7 +252,7 @@ stateDiagram-v2
 | `specified` | Intent `accepted`; spec absent or `proposed` |
 | `planned` | Spec `accepted`; plan absent or `proposed` |
 | `building` | Plan `accepted`; a linked PR is open or has commits, none merged |
-| `shipped` | A linked build PR is merged to the default branch after plan acceptance |
+| `shipped` | A linked build PR with the line `Plan complete: yes` is merged to the default branch after plan acceptance (a plan is often built in several PRs; the last one declares it) |
 
 **Health** (per feature, evaluated in this order):
 

@@ -46,7 +46,9 @@ test('AC-11: the model carries S1a state from pull requests', async () => {
   assert.equal(r.body.partial, false);
   const s0 = r.body.model.features.find((f) => f.slug === 's0-walking-skeleton');
   assert.deepEqual(['intent', 'spec', 'plan'].map((k) => s0.artifacts[k].state), ['accepted', 'accepted', 'accepted']);
-  assert.equal(s0.lifecycle, 'shipped', 'S0 build PRs were merged after its plan');
+  // S0's build PRs were merged after its plan, but none says "Plan complete: yes"
+  // (the marker was introduced after S0), so S0 honestly reads "building".
+  assert.equal(s0.lifecycle, 'building');
   assert.deepEqual(s0.health, { status: 'on track', reason: 'No open artifact PR is blocked' });
   assert.deepEqual(r.body.model.queue, []);
   const pr8 = r.body.model.prs.find((p) => p.number === 8);
