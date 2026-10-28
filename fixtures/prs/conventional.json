@@ -1,0 +1,89 @@
+{
+  "_about": "Pull request facts on top of fixtures/conventional/. Hand-built: each PR exercises one rule of the S1a spec. 'now' is fixed so ages and staleness are exact.",
+  "now": "2026-10-28T12:00:00Z",
+  "open": [
+    {
+      "number": 10, "title": "Intent: new idea", "url": "https://github.com/o/r/pull/10", "author": "dev",
+      "createdAt": "2026-10-20T12:00:00Z", "updatedAt": "2026-10-27T12:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Feature: new-idea\nCapability: alpha", "labels": [], "requestedReviewers": ["owner"],
+      "files": [{ "path": "intent/new-idea/intent.md", "status": "added", "additions": 20, "deletions": 0 }],
+      "reviews": []
+    },
+    {
+      "number": 11, "title": "Spec: intent-only", "url": "https://github.com/o/r/pull/11", "author": "dev",
+      "createdAt": "2026-10-25T12:00:00Z", "updatedAt": "2026-10-27T12:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Feature: intent-only", "labels": [], "requestedReviewers": ["owner", "team:product"],
+      "files": [{ "path": "intent/intent-only/spec.md", "status": "added", "additions": 40, "deletions": 0 }],
+      "reviews": [
+        { "user": "alice", "state": "CHANGES_REQUESTED", "submittedAt": "2026-10-26T09:00:00Z" },
+        { "user": "alice", "state": "APPROVED", "submittedAt": "2026-10-26T15:00:00Z" },
+        { "user": "bob", "state": "CHANGES_REQUESTED", "submittedAt": "2026-10-27T10:00:00Z" }
+      ]
+    },
+    {
+      "number": 12, "title": "Spec: tighten full", "url": "https://github.com/o/r/pull/12", "author": "dev",
+      "createdAt": "2026-10-08T12:00:00Z", "updatedAt": "2026-10-10T12:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Feature: full", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "intent/full/spec.md", "status": "modified", "additions": 3, "deletions": 1 }],
+      "reviews": []
+    },
+    {
+      "number": 13, "title": "Build: no-frontmatter step 1", "url": "https://github.com/o/r/pull/13", "author": "dev",
+      "createdAt": "2026-10-26T12:00:00Z", "updatedAt": "2026-10-27T12:00:00Z", "mergedAt": null, "draft": true,
+      "body": "## Type\n\nFeature: no-frontmatter\n", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "src/a.js", "status": "added", "additions": 50, "deletions": 0 }],
+      "reviews": []
+    },
+    {
+      "number": 14, "title": "Fix typo", "url": "https://github.com/o/r/pull/14", "author": "dev",
+      "createdAt": "2026-10-27T12:00:00Z", "updatedAt": "2026-10-27T12:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Light change: fix a typo\nCapability: alpha", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "README.md", "status": "modified", "additions": 1, "deletions": 1 }],
+      "reviews": []
+    },
+    {
+      "number": 15, "title": "Untouched template", "url": "https://github.com/o/r/pull/15", "author": "dev",
+      "createdAt": "2026-10-27T12:00:00Z", "updatedAt": "2026-10-27T12:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Feature: <slug>\nLight change: <one-line reason>", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "docs/x.md", "status": "added", "additions": 5, "deletions": 0 }],
+      "reviews": []
+    },
+    {
+      "number": 16, "title": "Reword two intents", "url": "https://github.com/o/r/pull/16", "author": "dev",
+      "createdAt": "2026-10-24T12:00:00Z", "updatedAt": "2026-10-27T12:00:00Z", "mergedAt": null, "draft": false,
+      "body": "", "labels": [], "requestedReviewers": ["owner"],
+      "files": [
+        { "path": "intent/orphan/intent.md", "status": "modified", "additions": 2, "deletions": 2 },
+        { "path": "intent/intent-only/intent.md", "status": "modified", "additions": 1, "deletions": 1 }
+      ],
+      "reviews": []
+    }
+  ],
+  "merged": [
+    {
+      "number": 4, "title": "Build for orphan", "url": "https://github.com/o/r/pull/4", "author": "dev",
+      "createdAt": "2026-09-20T12:00:00Z", "updatedAt": "2026-09-21T12:00:00Z", "mergedAt": "2026-09-21T12:00:00Z", "draft": false,
+      "body": "", "labels": ["feature:orphan"], "requestedReviewers": [],
+      "files": [{ "path": "src/orphan.js", "status": "added", "additions": 10, "deletions": 0 }],
+      "reviews": []
+    },
+    {
+      "number": 5, "title": "Plan: full", "url": "https://github.com/o/r/pull/5", "author": "dev",
+      "createdAt": "2026-09-30T12:00:00Z", "updatedAt": "2026-10-01T12:00:00Z", "mergedAt": "2026-10-01T12:00:00Z", "draft": false,
+      "body": "Feature: full", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "intent/full/plan.md", "status": "added", "additions": 30, "deletions": 0 }],
+      "reviews": []
+    },
+    {
+      "number": 6, "title": "Build: full", "url": "https://github.com/o/r/pull/6", "author": "dev",
+      "createdAt": "2026-10-02T12:00:00Z", "updatedAt": "2026-10-05T12:00:00Z", "mergedAt": "2026-10-05T12:00:00Z", "draft": false,
+      "body": "Feature: full", "labels": [], "requestedReviewers": [],
+      "files": [
+        { "path": "lib/full.js", "status": "added", "additions": 80, "deletions": 0 },
+        { "path": "test/full.test.js", "status": "added", "additions": 40, "deletions": 0 }
+      ],
+      "reviews": []
+    }
+  ],
+  "partial": false
+}
