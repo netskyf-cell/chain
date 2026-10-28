@@ -1,22 +1,15 @@
-// Feature chain, static version (F-12 in S0): intent -> spec -> plan,
-// each present or absent on the default branch, with its file path.
+// Feature chain (F-12, S1a): intent -> spec -> plan with their state
+// (accepted, revising, proposed, absent), the open PR if any, lifecycle and health.
 import { h, notice } from '../dom.js';
 import { route } from '../router.js';
 import { loadRepo } from '../api.js';
+import { artifactBadge, lifecycleBadge, healthBadge } from '../labels.js';
 
 const STEPS = [
   ['intent', 'Why'],
   ['spec', 'What'],
   ['plan', 'How'],
 ];
-
-function stateBadge(state) {
-  // Text and icon, never colour alone (AC-11).
-  // S1a: the API now returns accepted / revising / proposed / absent (full view in group C).
-  return state === 'absent'
-    ? h('span', { class: 'state absent' }, h('span', { 'aria-hidden': 'true' }, '○'), 'absent')
-    : h('span', { class: 'state present' }, h('span', { 'aria-hidden': 'true' }, '✓'), state);
-}
 
 export async function renderFeature(root, { params }) {
   const { repo, slug } = params;
@@ -39,18 +32,32 @@ export async function renderFeature(root, { params }) {
 
   const nodes = [];
   STEPS.forEach(([step, question], i) => {
-    const artifact = feature.artifacts[step];
+    const a = feature.artifacts[step];
     if (i > 0) nodes.push(h('span', { class: 'arrow', 'aria-hidden': 'true' }, '→'));
-    nodes.push(h('section', { class: `node ${artifact.state}`, 'aria-label': `${step}: ${artifact.state}` },
+    nodes.push(h('section', { class: `node ${a.state}`, 'aria-label': `${step}: ${a.state}` },
       h('div', { class: 'step' }, step, ' ', h('span', { class: 'muted' }, `· ${question}`)),
-      stateBadge(artifact.state),
-      h('div', { class: 'mono muted' }, artifact.path)));
+      artifactBadge(a.state),
+      h('div', { class: 'mono muted' }, a.path),
+      a.pr ? h('div', {}, h('a', { href: a.pr.url }, `PR #${a.pr.number}`), ' open') : null));
   });
+
+  const prs = data.model.prs.filter((p) => feature.prs.includes(p.number));
+  const prList = prs.length
+    ? h('ul', {}, prs.map((p) => h('li', {},
+      h('a', { href: p.url }, `#${p.number}`), ' ', p.title,
+      h('span', { class: 'muted' }, ` · ${p.state} · ${p.role}${p.planComplete ? ' · plan complete' : ''}`))))
+    : h('p', { class: 'muted' }, 'No linked pull request in the last 30 closed or currently open.');
 
   root.replaceChildren(
     back,
     h('h1', { class: 'mono' }, feature.slug),
-    h('p', { class: 'muted' }, feature.capability ? `Capability: ${feature.capability}` : 'No capability declared'),
+    h('p', {},
+      feature.capability ? `Capability: ${feature.capability}` : 'No capability declared',
+      ' · ', lifecycleBadge(feature.lifecycle),
+      ' ', healthBadge(feature.health)),
+    h('p', { class: 'muted' }, feature.health.reason),
     h('div', { class: 'chain' }, nodes),
+    h('h2', { class: 'section' }, 'Linked pull requests'),
+    prList,
   );
 }

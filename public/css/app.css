@@ -82,8 +82,39 @@ h1.mono { font-size: 22px; }
 .node.absent { border-style: dashed; }
 .node .step { font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: 13px; }
 .state { display: inline-flex; gap: var(--space-1); align-items: center; font-weight: 600; }
-.state.present { color: var(--present); }
+.state.present, .state.accepted { color: var(--present); }
 .state.absent { color: var(--absent); }
+.state.proposed { color: var(--proposed); }
+.state.revising { color: var(--revising); }
+.node.proposed { border-color: var(--proposed); }
+
+.pill {
+  display: inline-flex; gap: var(--space-1); align-items: center;
+  padding: 0 var(--space-2); border: 1px solid var(--border); border-radius: 999px;
+  font-size: 12px; white-space: nowrap;
+}
+.pill.health.blocked { border-color: var(--blocked); color: var(--blocked); }
+.pill.lifecycle.shipped { border-color: var(--present); color: var(--present); }
+.pill.lifecycle.no-intent { border-color: var(--proposed); color: var(--proposed); }
+
+.board-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
+.badge {
+  display: inline-flex; gap: var(--space-2); align-items: center; text-decoration: none;
+  padding: var(--space-1) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); background: var(--surface); margin-bottom: var(--space-3);
+}
+.badge.waiting { border-color: var(--proposed); }
+.features { list-style: none; padding-left: 0; }
+.feature-row { padding: var(--space-1) 0; }
+.reason { font-size: 13px; }
+.light { margin-top: var(--space-6); }
+.light ul { padding-left: var(--space-4); }
+h2.section { margin-top: var(--space-6); }
+
+.table-wrap { overflow-x: auto; }
+.queue { border-collapse: collapse; width: 100%; font-size: 14px; }
+.queue th, .queue td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); vertical-align: top; }
+.queue th { color: var(--text-muted); font-weight: 600; }
 .arrow { align-self: center; color: var(--text-muted); }
 
 @media (max-width: 600px) {

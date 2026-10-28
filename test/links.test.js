@@ -48,3 +48,8 @@ test('parseHash() reads every S0 route and its parameters', async () => {
   assert.equal(parseHash('#/nope').name, 'not-found');
   assert.equal(parseHash('#/feature/%E0%A4%A/x').name, 'not-found');
 });
+
+test('parseHash() reads the waiting route with its repository', async () => {
+  const { parseHash, route } = await import('../public/js/router.js');
+  assert.deepEqual(parseHash(route('waiting', { repo: 'a/b' }).slice(1)), { name: 'waiting', params: {}, query: { repo: 'a/b' } });
+});
