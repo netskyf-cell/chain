@@ -35,8 +35,24 @@ test('AC-6: returns the model for a repository', async () => {
   assert.equal(r.body.sha, SHA);
   assert.equal(r.body.truncated, false);
   const flow = r.body.model.capabilities.find((c) => c.slug === 'flow-visibility');
-  assert.deepEqual(flow.features, ['s0-walking-skeleton']);
+  assert.deepEqual(flow.features, ['s0-walking-skeleton', 's1-state']);
   assert.equal(r.body.model.capabilities.length, 5);
+});
+
+test('AC-11: the model carries S1a state from pull requests', async () => {
+  const { handler } = setup('ok', { start: Date.parse('2026-10-28T15:00:00Z') });
+  const r = await call(handler, '/api/demo?repo=netskyf-cell/chain');
+  assert.equal(r.status, 200);
+  assert.equal(r.body.partial, false);
+  const s0 = r.body.model.features.find((f) => f.slug === 's0-walking-skeleton');
+  assert.deepEqual(['intent', 'spec', 'plan'].map((k) => s0.artifacts[k].state), ['accepted', 'accepted', 'accepted']);
+  assert.equal(s0.lifecycle, 'shipped', 'S0 build PRs were merged after its plan');
+  assert.deepEqual(s0.health, { status: 'on track', reason: 'No open artifact PR is blocked' });
+  assert.deepEqual(r.body.model.queue, []);
+  const pr8 = r.body.model.prs.find((p) => p.number === 8);
+  // PR #8 says "Light change:" but also edits intent files: rule 1 (files) wins over rule 4.
+  assert.equal(pr8.kind, 'feature');
+  assert.deepEqual(pr8.features, ['chain']);
 });
 
 test('accepts a full GitHub URL as well as owner/name', async () => {

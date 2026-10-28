@@ -59,3 +59,59 @@ test('maps an exhausted rate limit to rate_limited', async () => {
 test('maps other failures to upstream', async () => {
   await assert.rejects(readRepo(REPO, { fetch: fakeFetch('server-error') }), (err) => err.code === 'upstream');
 });
+
+// ---- Pull requests (S1a, plan step B2, AC-10) ----
+const { readPullRequests } = require('../lib/connectors/github');
+const { rawPr, recordedClosed } = require('./fake-github');
+
+test('reads merged PRs with their files; closed-but-unmerged PRs are dropped', async () => {
+  const fetch = fakeFetch();
+  const prs = await readPullRequests(REPO, { fetch });
+  assert.equal(prs.open.length, 0);
+  assert.equal(prs.merged.length, recordedClosed.filter((p) => p.merged_at).length);
+  assert.ok(prs.merged.every((p) => p.mergedAt));
+  const intentPr = prs.merged.find((p) => p.files.some((f) => f.path === 'intent/s0-walking-skeleton/intent.md'));
+  assert.ok(intentPr, 'the S0 intent PR is found by its files');
+  assert.equal(prs.partial, false);
+});
+
+test('call budget: 2 lists, files for every PR, reviews for open PRs only', async () => {
+  const open = [rawPr(101), rawPr(102)];
+  const fetch = fakeFetch('ok', { open });
+  const prs = await readPullRequests(REPO, { fetch });
+  const merged = recordedClosed.filter((p) => p.merged_at).length;
+  assert.equal(fetch.restCalls(), 2 + 2 * open.length + merged);
+  assert.ok(!fetch.calls.some((c) => /\/pulls\/\d+\/reviews/.test(c.url) && !/\/pulls\/10[12]\//.test(c.url)));
+  assert.equal(prs.open.length, 2);
+});
+
+test('maps GitHub fields to PR facts, teams included', async () => {
+  const open = [rawPr(103, {
+    body: 'Feature: x', labels: [{ name: 'feature:x' }],
+    requested_reviewers: [{ login: 'owner' }], requested_teams: [{ slug: 'product' }],
+  })];
+  const files = { 103: [{ filename: 'intent/x/b.md', previous_filename: 'intent/x/a.md', status: 'renamed', additions: 1, deletions: 0 }] };
+  const reviews = { 103: [{ user: { login: 'bob' }, state: 'CHANGES_REQUESTED', submitted_at: '2026-10-27T11:00:00Z' }] };
+  const prs = await readPullRequests(REPO, { fetch: fakeFetch('ok', { open, files, reviews }) });
+  assert.deepEqual(prs.open[0], {
+    number: 103, title: 'PR 103', url: 'https://github.com/netskyf-cell/chain/pull/103', author: 'dev',
+    createdAt: '2026-10-27T10:00:00Z', updatedAt: '2026-10-27T10:00:00Z', mergedAt: null, draft: false,
+    body: 'Feature: x', labels: ['feature:x'], requestedReviewers: ['owner', 'team:product'],
+    files: [{ path: 'intent/x/b.md', status: 'renamed', additions: 1, deletions: 0, previousPath: 'intent/x/a.md' }],
+    reviews: [{ user: 'bob', state: 'CHANGES_REQUESTED', submittedAt: '2026-10-27T11:00:00Z' }],
+  });
+});
+
+test('partial is true when GitHub has more open PRs than the 30 read', async () => {
+  const prs = await readPullRequests(REPO, { fetch: fakeFetch('ok', { open: [rawPr(104)], next: true }) });
+  assert.equal(prs.partial, true);
+});
+
+test('pull request reads send the token only in the Authorization header', async () => {
+  const fetch = fakeFetch('ok', { open: [rawPr(105)] });
+  await readPullRequests(REPO, { fetch, token: 'tok-456' });
+  for (const call of fetch.calls) {
+    assert.equal(call.headers.Authorization, 'Bearer tok-456');
+    assert.ok(!call.url.includes('tok-456'));
+  }
+});
