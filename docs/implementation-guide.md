@@ -82,7 +82,8 @@ open a PR with plan.md only, then stop.
 ```
 Implement steps <1 to 3> of intent/<slice-slug>/plan.md on a new branch. Tests
 first. Run the architecture-guard skill. In the PR, fill "Plan match",
-"Divergences from plan" and "Verification". Do not touch migrations or deploy.
+"Divergences from plan" and "Verification". On the PR that builds the last
+steps of the plan, add the line "Plan complete: yes". Do not touch migrations or deploy.
 ```
 
 **Light change**
