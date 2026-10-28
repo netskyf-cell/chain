@@ -12,7 +12,7 @@ Start each finding on its own line with the pass in brackets, then the severity:
 [compliance] Nit: ADR index not updated
 ```
 
-Chain counts these by pass. `[compliance]` findings at Important raise a drift signal.
+Severity is `Block`, `Important` or `Nit`. Chain counts findings by pass. Findings of a drift pass (`chain.yml` `review.drift_passes`, default `compliance`) at Important or Block raise a `compliance_finding` drift signal. Lines inside code blocks are ignored, so examples like the ones above never count.
 
 ## Passes
 
@@ -20,7 +20,12 @@ Chain counts these by pass. `[compliance]` findings at Important raise a drift s
 
 **security** — secrets in code, tables without row-level security, service-role key outside `api/`, unvalidated input on any `api/` route, private data in logs, anything that writes to GitHub or a PM tool (not allowed in v1).
 
-**compliance** — does the PR match `intent/<slug>/plan.md`? Also check:
+**compliance** — does the PR still serve the feature's chain? Check, in order:
+- each acceptance criterion in `intent/<slug>/spec.md` this PR claims: met, or say which one is not (`AC-3 not met`)
+- the intent's **Non-goals** in `intent/<slug>/intent.md`: the PR must not do any of them (cite the non-goal)
+- the plan in `intent/<slug>/plan.md`: steps done as written, or listed under "Divergences from plan"
+
+Also check:
 - a hard-to-reverse decision without an ADR
 - status stored in a file (ADR-0003)
 - an internal link without `/#/`
@@ -31,6 +36,7 @@ Chain counts these by pass. `[compliance]` findings at Important raise a drift s
 
 ## Severity
 
+- **Block** — must not merge as is: contradicts the intent (does a non-goal) or breaks a load-bearing ADR.
 - **Important** — fix before merge.
 - **Nit** — optional. Report at most 5 nits per pass.
 

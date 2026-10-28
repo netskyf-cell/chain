@@ -1,0 +1,158 @@
+{
+  "_about": "S2 drift scenario. Each feature exercises one signal or its near miss. 'model' has the shape of scan(); 'history' is the commit history per artifact path since the window start. Hand-built.",
+  "now": "2026-10-28T12:00:00Z",
+  "model": {
+    "paths": { "capabilities": "capabilities", "intent": "intent" },
+    "capabilities": [{ "slug": "drift-prevention", "path": "capabilities/drift-prevention.md", "statement": "Teams avoid drift", "features": [] }],
+    "unassigned": [],
+    "empty": false,
+    "features": [
+      { "slug": "ir", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/ir/intent.md" },
+        "spec": { "state": "present", "path": "intent/ir/spec.md" },
+        "plan": { "state": "absent", "path": "intent/ir/plan.md" } } },
+      { "slug": "ir-ok", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/ir-ok/intent.md" },
+        "spec": { "state": "present", "path": "intent/ir-ok/spec.md" },
+        "plan": { "state": "absent", "path": "intent/ir-ok/plan.md" } } },
+      { "slug": "ir-old", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/ir-old/intent.md" },
+        "spec": { "state": "present", "path": "intent/ir-old/spec.md" },
+        "plan": { "state": "absent", "path": "intent/ir-old/plan.md" } } },
+      { "slug": "ir-partial", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/ir-partial/intent.md" },
+        "spec": { "state": "present", "path": "intent/ir-partial/spec.md" },
+        "plan": { "state": "absent", "path": "intent/ir-partial/plan.md" } } },
+      { "slug": "sr", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/sr/intent.md" },
+        "spec": { "state": "present", "path": "intent/sr/spec.md" },
+        "plan": { "state": "present", "path": "intent/sr/plan.md" } } },
+      { "slug": "dv", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/dv/intent.md" },
+        "spec": { "state": "present", "path": "intent/dv/spec.md" },
+        "plan": { "state": "present", "path": "intent/dv/plan.md" } } },
+      { "slug": "dv-ok", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/dv-ok/intent.md" },
+        "spec": { "state": "present", "path": "intent/dv-ok/spec.md" },
+        "plan": { "state": "present", "path": "intent/dv-ok/plan.md" } } },
+      { "slug": "pv", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/pv/intent.md" },
+        "spec": { "state": "present", "path": "intent/pv/spec.md" },
+        "plan": { "state": "present", "path": "intent/pv/plan.md" } } },
+      { "slug": "cf", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/cf/intent.md" },
+        "spec": { "state": "present", "path": "intent/cf/spec.md" },
+        "plan": { "state": "present", "path": "intent/cf/plan.md" } } },
+      { "slug": "gb", "capability": "drift-prevention", "artifacts": {
+        "intent": { "state": "present", "path": "intent/gb/intent.md" },
+        "spec": { "state": "absent", "path": "intent/gb/spec.md" },
+        "plan": { "state": "absent", "path": "intent/gb/plan.md" } } }
+    ]
+  },
+  "history": {
+    "intent/ir/intent.md": { "partial": false, "commits": [
+      { "sha": "i1", "date": "2026-10-01T10:00:00Z", "url": "https://github.com/o/r/commit/i1", "prs": [1] },
+      { "sha": "i2", "date": "2026-10-08T10:00:00Z", "url": "https://github.com/o/r/commit/i2", "prs": [2] } ] },
+    "intent/ir/spec.md": { "partial": false, "commits": [
+      { "sha": "s1", "date": "2026-10-05T10:00:00Z", "url": "https://github.com/o/r/commit/s1", "prs": [3] } ] },
+    "intent/ir-ok/intent.md": { "partial": false, "commits": [
+      { "sha": "k1", "date": "2026-10-01T10:00:00Z", "url": "https://github.com/o/r/commit/k1", "prs": [4] },
+      { "sha": "k2", "date": "2026-10-08T10:00:00Z", "url": "https://github.com/o/r/commit/k2", "prs": [5] } ] },
+    "intent/ir-ok/spec.md": { "partial": false, "commits": [
+      { "sha": "k3", "date": "2026-10-05T10:00:00Z", "url": "https://github.com/o/r/commit/k3", "prs": [6] },
+      { "sha": "k4", "date": "2026-10-09T10:00:00Z", "url": "https://github.com/o/r/commit/k4", "prs": [7] } ] },
+    "intent/ir-old/intent.md": { "partial": false, "commits": [
+      { "sha": "o1", "date": "2026-10-03T10:00:00Z", "url": "https://github.com/o/r/commit/o1", "prs": [8] } ] },
+    "intent/ir-old/spec.md": { "partial": false, "commits": [] },
+    "intent/ir-partial/intent.md": { "partial": true, "commits": [
+      { "sha": "p1", "date": "2026-10-09T10:00:00Z", "url": "https://github.com/o/r/commit/p1", "prs": [9] } ] },
+    "intent/ir-partial/spec.md": { "partial": true, "commits": [
+      { "sha": "p2", "date": "2026-10-02T10:00:00Z", "url": "https://github.com/o/r/commit/p2", "prs": [10] } ] },
+    "intent/sr/spec.md": { "partial": false, "commits": [
+      { "sha": "r1", "date": "2026-10-02T10:00:00Z", "url": "https://github.com/o/r/commit/r1", "prs": [11] },
+      { "sha": "r2", "date": "2026-10-10T10:00:00Z", "url": "https://github.com/o/r/commit/r2", "prs": [12] } ] },
+    "intent/sr/plan.md": { "partial": false, "commits": [
+      { "sha": "r3", "date": "2026-10-04T10:00:00Z", "url": "https://github.com/o/r/commit/r3", "prs": [13] } ] },
+    "intent/sr/intent.md": { "partial": false, "commits": [] },
+    "intent/dv/plan.md": { "partial": false, "commits": [
+      { "sha": "d1", "date": "2026-10-01T10:00:00Z", "url": "https://github.com/o/r/commit/d1", "prs": [14] } ] },
+    "intent/dv-ok/plan.md": { "partial": false, "commits": [
+      { "sha": "d2", "date": "2026-10-01T10:00:00Z", "url": "https://github.com/o/r/commit/d2", "prs": [15] },
+      { "sha": "d3", "date": "2026-10-12T10:00:00Z", "url": "https://github.com/o/r/commit/d3", "prs": [16] } ] },
+    "intent/gb/intent.md": { "partial": false, "commits": [
+      { "sha": "g1", "date": "2026-10-03T10:00:00Z", "url": "https://github.com/o/r/commit/g1", "prs": [] },
+      { "sha": "g2", "date": "2026-10-04T10:00:00Z", "url": "https://github.com/o/r/commit/g2", "prs": [17] },
+      { "sha": "g3", "date": "2026-10-05T10:00:00Z", "url": "https://github.com/o/r/commit/g3" } ] }
+  },
+  "open": [
+    {
+      "number": 33, "title": "Build: dv-ok part 2", "url": "https://github.com/o/r/pull/33", "author": "dev",
+      "createdAt": "2026-10-20T10:00:00Z", "updatedAt": "2026-10-27T10:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Feature: dv-ok\n\n## Divergences from plan\n\nNone\n\n## Verification\n", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "src/dvok2.js", "status": "added", "additions": 5, "deletions": 0 }],
+      "reviews": [], "comments": []
+    },
+    {
+      "number": 35, "title": "Build: cf", "url": "https://github.com/o/r/pull/35", "author": "dev",
+      "createdAt": "2026-10-22T10:00:00Z", "updatedAt": "2026-10-27T10:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Feature: cf", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "src/cf.js", "status": "added", "additions": 30, "deletions": 0 }],
+      "reviews": [
+        { "user": "reviewer", "state": "COMMENTED", "submittedAt": "2026-10-23T10:00:00Z", "url": "https://github.com/o/r/pull/35#pullrequestreview-1",
+          "body": "Review.\n[compliance] Important: AC-3 not met\n[bugs] Important: off by one\n[compliance] Nit: wording\n```\n[compliance] Block: example only\n```" }
+      ],
+      "comments": [
+        { "user": "reviewer", "createdAt": "2026-10-24T10:00:00Z", "url": "https://github.com/o/r/pull/35#discussion_r2",
+          "body": "[compliance] Block: does what the intent lists under Non-goals (writes to GitHub)" }
+      ]
+    },
+    {
+      "number": 36, "title": "Tidy configs", "url": "https://github.com/o/r/pull/36", "author": "dev",
+      "createdAt": "2026-10-26T10:00:00Z", "updatedAt": "2026-10-27T10:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Light change: tidy configs", "labels": [], "requestedReviewers": [],
+      "files": [
+        { "path": "a.yml", "status": "modified", "additions": 1, "deletions": 1 },
+        { "path": "b.yml", "status": "modified", "additions": 1, "deletions": 1 },
+        { "path": "c.yml", "status": "modified", "additions": 1, "deletions": 1 },
+        { "path": "d.yml", "status": "modified", "additions": 1, "deletions": 1 },
+        { "path": "e.yml", "status": "modified", "additions": 1, "deletions": 1 },
+        { "path": "f.yml", "status": "modified", "additions": 1, "deletions": 1 }
+      ],
+      "reviews": [], "comments": []
+    },
+    {
+      "number": 37, "title": "Fix typo", "url": "https://github.com/o/r/pull/37", "author": "dev",
+      "createdAt": "2026-10-26T10:00:00Z", "updatedAt": "2026-10-27T10:00:00Z", "mergedAt": null, "draft": false,
+      "body": "Light change: fix a typo", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "README.md", "status": "modified", "additions": 5, "deletions": 5 }],
+      "reviews": [], "comments": []
+    }
+  ],
+  "merged": [
+    {
+      "number": 31, "title": "Build: dv", "url": "https://github.com/o/r/pull/31", "author": "dev",
+      "createdAt": "2026-10-08T10:00:00Z", "updatedAt": "2026-10-10T10:00:00Z", "mergedAt": "2026-10-10T10:00:00Z", "draft": false,
+      "body": "Feature: dv\n\n## Divergences from plan\n\n- Skipped step 3, moved to a later PR.\n\n## Verification\n", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "src/dv.js", "status": "added", "additions": 40, "deletions": 0 }],
+      "reviews": [], "comments": []
+    },
+    {
+      "number": 32, "title": "Build: dv-ok", "url": "https://github.com/o/r/pull/32", "author": "dev",
+      "createdAt": "2026-10-08T10:00:00Z", "updatedAt": "2026-10-10T10:00:00Z", "mergedAt": "2026-10-10T10:00:00Z", "draft": false,
+      "body": "Feature: dv-ok\n\n## Divergences from plan\n\n- Added a helper.\n", "labels": [], "requestedReviewers": [],
+      "files": [{ "path": "src/dvok.js", "status": "added", "additions": 40, "deletions": 0 }],
+      "reviews": [], "comments": []
+    },
+    {
+      "number": 34, "title": "Build: pv", "url": "https://github.com/o/r/pull/34", "author": "dev",
+      "createdAt": "2026-10-11T10:00:00Z", "updatedAt": "2026-10-12T10:00:00Z", "mergedAt": "2026-10-12T10:00:00Z", "draft": false,
+      "body": "Feature: pv", "labels": [], "requestedReviewers": [],
+      "files": [
+        { "path": "intent/pv/plan.md", "status": "modified", "additions": 3, "deletions": 1 },
+        { "path": "src/pv.js", "status": "added", "additions": 20, "deletions": 0 }
+      ],
+      "reviews": [], "comments": []
+    }
+  ],
+  "partial": false
+}

@@ -48,3 +48,24 @@ test('Plan complete: yes marks the last build PR of a plan', () => {
   assert.equal(parsePrBody('Feature: x\nPlan complete: no').planComplete, false);
   assert.equal(parsePrBody('Plan complete: <yes on the last build PR of a plan, otherwise delete this line>').planComplete, false);
 });
+
+// AC-2 (S2): the "Divergences from plan" section.
+const { parseDivergences } = require('../lib/parse/pr-body');
+
+test('parseDivergences returns the section text', () => {
+  const body = '## Plan match\n\nYes.\n\n## Divergences from plan\n\n- Added a helper file.\n- Renamed a step.\n\n## Verification\n\nTests.';
+  assert.equal(parseDivergences(body), '- Added a helper file.\n- Renamed a step.');
+});
+
+test('parseDivergences: None, n/a, empty, comments only or no heading mean nothing declared', () => {
+  const section = (s) => `## Divergences from plan\n\n${s}\n\n## Verification\n`;
+  for (const s of ['None', 'none.', 'N/A', '', '<!-- Write "None" if ... -->', '<!-- note -->\n\nNone']) {
+    assert.equal(parseDivergences(section(s)), null, `expected null for ${JSON.stringify(s)}`);
+  }
+  assert.equal(parseDivergences('Feature: x\n\nNo heading here.'), null);
+  assert.equal(parseDivergences(null), null);
+});
+
+test('parseDivergences works when the section is last and with Windows line endings', () => {
+  assert.equal(parseDivergences('## Divergences from plan\r\n\r\nSkipped step 3.\r\n'), 'Skipped step 3.');
+});
