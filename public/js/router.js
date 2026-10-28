@@ -20,6 +20,7 @@ export function parseHash(hash) {
   const parts = path.split('/').filter(Boolean);
 
   if (parts[0] === 'demo' && parts.length === 1) return { name: 'demo', params: {}, query };
+  if (parts[0] === 'waiting' && parts.length === 1) return { name: 'waiting', params: {}, query };
   if (parts[0] === 'feature' && parts.length === 3) {
     try {
       return {

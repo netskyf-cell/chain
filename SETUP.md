@@ -10,6 +10,8 @@ Order follows the build slices. Do each step only when its slice starts.
 3. Optional: copy `.env.example` to `.env` and paste a demo token (step 5). Without it, GitHub allows 60 calls per hour from your address, enough to try it.
 4. `npm run dev`, then open http://localhost:3000/#/demo and paste `netskyf-cell/chain`.
 
+**GitHub call budget (S1a).** One scan reads the commit, the tree, two pull request lists, then each PR's files (and reviews for open PRs): about 4 + 2 × open PRs + merged PRs, at most about 90. Without a token (60 calls per hour) that is one scan per hour on an active repository, so set a token in `.env` for local work. Results are cached 5 minutes.
+
 **Put it online (Vercel)**
 5. **Demo token:** on GitHub, Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate. Repository access: *Public repositories (read-only)*. No permissions to add. Copy the token once; GitHub never shows it again.
 6. On vercel.com, sign in with GitHub, **Add New → Project**, import `chain`. Vercel reads `vercel.json`: no build step, static files from `public/`, the function from `api/`.

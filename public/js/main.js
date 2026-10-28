@@ -2,8 +2,9 @@
 import { parseHash, route } from './router.js';
 import { renderDemo } from './views/demo.js';
 import { renderFeature } from './views/feature.js';
+import { renderWaiting } from './views/waiting.js';
 
-const views = { demo: renderDemo, feature: renderFeature };
+const views = { demo: renderDemo, feature: renderFeature, waiting: renderWaiting };
 const root = document.getElementById('app');
 
 function render() {

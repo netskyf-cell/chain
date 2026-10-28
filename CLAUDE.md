@@ -57,4 +57,4 @@ Before saying a task is done: run the tests (`npm test`), open the page in a bro
 | Hardcode a GitHub token | Use the App, demo token server-side only |
 
 ## Current sprint
-Slice S0 — walking skeleton: built (`intent/s0-walking-skeleton/`). Demo: `npm run dev`, then `/#/demo?repo=netskyf-cell/chain`. Next: S1 intent (state, queue, PR classification).
+Slice S1a — state on demand: built (`intent/s1-state/`). Board with lifecycle and health, `/#/waiting?repo=…` queue, feature chain with PR state. Next: S2 intent (drift signals, including the `[compliance]` pass against spec criteria and intent non-goals). S1b (database, App, webhooks) later.
