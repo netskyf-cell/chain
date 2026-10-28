@@ -1,6 +1,7 @@
 'use strict';
 // GET /api/demo?repo=owner/name
-// Demo mode (F-04): reads a public repository and returns Chain's S0 model.
+// Demo mode (F-04): reads a public repository and returns Chain's model:
+// S0 scan of the default branch, plus S1a state from pull requests (reconcile).
 //
 // The read-only GITHUB_DEMO_TOKEN lives only here, server side. It is optional in
 // local development (GitHub then allows 60 unauthenticated calls per hour) and
@@ -9,8 +10,10 @@
 // Works as a Vercel function and under dev-server.js: it only uses
 // req.method, req.url, req.headers, res.statusCode, res.setHeader and res.end.
 
-const { readRepo } = require('../lib/connectors/github');
+const { readRepo, readPullRequests } = require('../lib/connectors/github');
 const { scan } = require('../lib/scan');
+const { readConfig } = require('../lib/config');
+const { reconcile } = require('../lib/reconcile/state');
 const { createCache } = require('../lib/cache');
 const { createRateLimit } = require('../lib/rate-limit');
 
@@ -68,8 +71,20 @@ function createDemoHandler({ fetch, token, now }) {
 
     try {
       const source = await readRepo(repo, { fetch, token });
-      const model = await scan(source);
-      const body = { repo: `${repo.owner}/${repo.name}`, sha: source.sha, truncated: source.truncated, model };
+      const [scanned, config, prs] = await Promise.all([
+        scan(source),
+        readConfig(source),
+        readPullRequests(repo, { fetch, token }),
+      ]);
+      // reconcile() is pure: the current time is passed in, never read inside.
+      const model = reconcile({ model: scanned, prs, config, now: new Date(now()).toISOString() });
+      const body = {
+        repo: `${repo.owner}/${repo.name}`,
+        sha: source.sha,
+        truncated: source.truncated,
+        partial: prs.partial,
+        model,
+      };
       cache.set(key, body);
       return send(res, 200, body);
     } catch (err) {

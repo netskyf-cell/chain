@@ -97,7 +97,7 @@ The first three come from the original product thesis. The last two were added w
 ## Open questions
 
 - **Name.** "Chain" is a working name. It needs a trademark, domain and package-name check before the first public release.
-- **Licence.** Not yet chosen. It must be decided before the repository is made public.
+- **Licence.** Decided: MIT ([LICENSE](../../LICENSE)), before the repository was made public.
 - **Coding-agent session data.** Each agent exposes different metadata: Claude Code documents an OpenTelemetry export; GitHub Copilot links commits to session logs and publishes usage metrics. Spikes S-A and S-H test them before any connector is committed to ([ADR-0006](../../docs/adr/0006-claude-code-sessions-via-hooks-metadata-only.md), status: proposed; [ADR-0013](../../docs/adr/0013-agent-neutral.md)).
 - **Other spec layouts.** Real output from Spec Kit, Kiro and OpenSpec must be inspected before readers are built ([ADR-0012](../../docs/adr/0012-read-other-spec-layouts.md), status: proposed).
 - **Which trackers.** Copilot already posts progress into Jira and Linear. Whether Chain needs its own connectors for them is unproven; Azure DevOps is first.

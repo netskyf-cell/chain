@@ -1,13 +1,21 @@
 'use strict';
 // A fake fetch that replays fixtures/github/ and counts calls.
 // Lets tests check the connector and the endpoint without any network.
+//
+// options.open:   replace the recorded (empty) open PR list with synthetic PRs,
+//                 in GitHub's raw shape; options.files / options.reviews give
+//                 their files and reviews by PR number.
+// options.next:   add a Link header with rel="next" to the open PR list.
 const fs = require('node:fs');
 const path = require('node:path');
 
 const DIR = path.join(__dirname, '..', 'fixtures', 'github');
-const commit = JSON.parse(fs.readFileSync(path.join(DIR, 'commit.json'), 'utf8'));
-const tree = JSON.parse(fs.readFileSync(path.join(DIR, 'tree.json'), 'utf8'));
+const read = (p) => JSON.parse(fs.readFileSync(path.join(DIR, p), 'utf8'));
+const commit = read('commit.json');
+const tree = read('tree.json');
 const SHA = commit.sha;
+const recordedOpen = read('pulls/open.json');
+const recordedClosed = read('pulls/closed.json');
 
 function response(status, body, headers = {}) {
   const text = typeof body === 'string' ? body : JSON.stringify(body);
@@ -21,10 +29,12 @@ function response(status, body, headers = {}) {
 }
 
 // mode: 'ok' | 'not-found' | 'rate-limited' | 'server-error'
-function fakeFetch(mode = 'ok') {
+function fakeFetch(mode = 'ok', options = {}) {
   const calls = [];
-  async function fetch(url, options = {}) {
-    calls.push({ url, headers: options.headers || {} });
+  const open = options.open || recordedOpen;
+
+  async function fetch(url, opts = {}) {
+    calls.push({ url, headers: opts.headers || {} });
     if (mode === 'not-found') return response(404, { message: 'Not Found' });
     if (mode === 'rate-limited') {
       return response(403, { message: 'API rate limit exceeded' }, { 'x-ratelimit-remaining': '0' });
@@ -33,8 +43,23 @@ function fakeFetch(mode = 'ok') {
 
     const u = new URL(url);
     if (u.hostname === 'api.github.com') {
-      if (u.pathname === '/repos/netskyf-cell/chain/commits/HEAD') return response(200, commit);
-      if (u.pathname === `/repos/netskyf-cell/chain/git/trees/${commit.commit.tree.sha}`) return response(200, tree);
+      const p = u.pathname.replace('/repos/netskyf-cell/chain', '');
+      if (p === '/commits/HEAD') return response(200, commit);
+      if (p === `/git/trees/${commit.commit.tree.sha}`) return response(200, tree);
+      if (p === '/pulls' && u.searchParams.get('state') === 'open') {
+        const headers = options.next ? { link: '<https://api.github.com/x?page=2>; rel="next"' } : {};
+        return response(200, open, headers);
+      }
+      if (p === '/pulls' && u.searchParams.get('state') === 'closed') return response(200, recordedClosed);
+      const files = p.match(/^\/pulls\/(\d+)\/files$/);
+      if (files) {
+        const n = Number(files[1]);
+        if (options.files && options.files[n]) return response(200, options.files[n]);
+        const f = path.join(DIR, 'pulls', 'files', `${n}.json`);
+        return fs.existsSync(f) ? response(200, fs.readFileSync(f, 'utf8')) : response(200, []);
+      }
+      const reviews = p.match(/^\/pulls\/(\d+)\/reviews$/);
+      if (reviews) return response(200, (options.reviews && options.reviews[Number(reviews[1])]) || []);
     }
     if (u.hostname === 'raw.githubusercontent.com') {
       const prefix = `/netskyf-cell/chain/${SHA}/`;
@@ -50,4 +75,23 @@ function fakeFetch(mode = 'ok') {
   return fetch;
 }
 
-module.exports = { fakeFetch, SHA };
+// A synthetic open PR in GitHub's raw shape.
+function rawPr(number, extra = {}) {
+  return {
+    number,
+    title: `PR ${number}`,
+    html_url: `https://github.com/netskyf-cell/chain/pull/${number}`,
+    user: { login: 'dev' },
+    created_at: '2026-10-27T10:00:00Z',
+    updated_at: '2026-10-27T10:00:00Z',
+    merged_at: null,
+    draft: false,
+    body: '',
+    labels: [],
+    requested_reviewers: [],
+    requested_teams: [],
+    ...extra,
+  };
+}
+
+module.exports = { fakeFetch, rawPr, SHA, recordedClosed };

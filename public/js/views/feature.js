@@ -12,9 +12,10 @@ const STEPS = [
 
 function stateBadge(state) {
   // Text and icon, never colour alone (AC-11).
-  return state === 'present'
-    ? h('span', { class: 'state present' }, h('span', { 'aria-hidden': 'true' }, '✓'), 'present')
-    : h('span', { class: 'state absent' }, h('span', { 'aria-hidden': 'true' }, '○'), 'absent');
+  // S1a: the API now returns accepted / revising / proposed / absent (full view in group C).
+  return state === 'absent'
+    ? h('span', { class: 'state absent' }, h('span', { 'aria-hidden': 'true' }, '○'), 'absent')
+    : h('span', { class: 'state present' }, h('span', { 'aria-hidden': 'true' }, '✓'), state);
 }
 
 export async function renderFeature(root, { params }) {
