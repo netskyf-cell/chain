@@ -96,7 +96,8 @@ and 150 lines. PR body: "Light change: <reason>".
 | Slice | Build | Files (from [architecture §10](architecture.md#10-repository-structure)) | Tests first | Needs | Before you start |
 |---|---|---|---|---|---|
 | **S0** Walking skeleton | Parse a repo's `capabilities/` and `intent/`, render one board and one feature chain | `lib/parse/artifact.js`, `lib/connectors/github.js`, `api/demo.js`, `public/` (router, board, feature views), `fixtures/` | Parser unit tests on the fixture | Demo token | Nothing blocking |
-| **S1** State | Artifact state, lifecycle, waiting queue, PR classification (feature, light, unlinked), webhook sync | `lib/reconcile/state.js`, `lib/parse/pr-body.js`, `lib/store/`, `api/webhooks/` | Reconcile fixtures with exact expected output | Supabase, GitHub App | Spike S-C (REST or GraphQL) |
+| **S1a** State on demand | Artifact state, lifecycle, waiting queue, PR classification (feature, light, unlinked) | `lib/reconcile/state.js`, `lib/parse/pr-body.js`, `api/demo.js` | Reconcile fixtures with exact expected output | Demo token only | None (REST, decided in the S1a spec) |
+| **S1b** Persistence and sync | Database cache, webhook sync, checks state | `lib/store/`, `api/webhooks/` | Contract tests with recorded webhook payloads | Supabase, GitHub App | Spike S-C (REST or GraphQL for batching) |
 | **S2** Drift | One file per rule: rework, divergence, compliance finding, bypass, light-path size | `lib/reconcile/signals/*.js`, `lib/parse/findings.js` | One fixture case per signal | None | Spike S-D (real review findings) |
 | **S3** Connect | Sign-in, install flow, multi-repo, portfolio, settings | `api/`, `public/` views | Contract tests with recorded GitHub responses | None new | Spike S-B (sign-in model) |
 | **S4** Finish | Previews, source labels, design node, links, themes, start prompt | `public/`, `lib/parse` | End-to-end walk-through | None new | Design round done (see `design/README.md`) |

@@ -135,7 +135,8 @@ Release 1.0 is built in slices. Each slice is demonstrable on its own, and each 
 | Slice | Goal | Features | Demo moment |
 |---|---|---|---|
 | **S0** Walking skeleton | A public repo renders as a board, no login | F-04, F-03, F-10, F-12 (static) | Paste Chain's own repo URL, see Chain's own chain |
-| **S1** State | Artifact state, the human-wait queue and PR classification are right | F-05, F-14, F-17, F-20 (without drift) | Open a PR on an intent, watch it appear as "proposed"; open a light PR, see it listed |
+| **S1a** State on demand | Artifact state, the human-wait queue and PR classification are right, read on demand | F-14, F-17, F-20 (without drift) | Open a PR on an intent, watch it appear as "proposed"; open a light PR, see it listed |
+| **S1b** Persistence and sync | Database, GitHub App, webhooks, checks state | F-05 | A merge shows within a minute without reloading |
 | **S2** Drift | Deterministic signals with evidence | F-21, F-22, F-23, F-27 | Edit a spec after plan acceptance, see the signal; open an oversized light PR, see the guard fire |
 | **S3** Connect | Sign-in, app install, multi-repo | F-01, F-02, F-30, F-61 | Connect a private repo |
 | **S4** Finish | Previews, labels, links, themes, start prompt | F-13, F-15, F-16, F-40, F-60, F-70 | Full walk-through |
