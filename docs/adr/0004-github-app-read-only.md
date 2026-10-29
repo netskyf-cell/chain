@@ -13,7 +13,7 @@ A GitHub App can be installed on selected repositories, requests only the permis
 
 ## Decision
 
-We will use a GitHub App with read-only repository permissions: **Contents: read, Pull requests: read, Metadata: read**. Account permission **Email addresses: read**, only so the same App can sign users in (spike S-B, below). Installation tokens are minted server-side. Webhook events: push, pull request, pull request review.
+We will use a GitHub App with read-only repository permissions: **Contents: read, Pull requests: read, Metadata: read**, and since S1b **Checks: read, Commit statuses: read** (amendment below). Account permission **Email addresses: read**, only so the same App can sign users in (spike S-B, below). Installation tokens are minted server-side. Webhook events: push, pull request, pull request review, and since S1b pull request review comment, check run, check suite and status. Installation and installation-repositories events are always sent to an App.
 
 Demo mode for public repositories has no installation, so it uses a server-held, read-only token that can read public data only.
 
@@ -60,3 +60,16 @@ GitHub documentation on GitHub Apps, fine-grained permissions and installation a
 - **What is kept.** The user token (`provider_token`) is used at sign-in and then discarded. Repository reads keep using short-lived installation tokens minted server-side.
 
 **Not verified here.** Nothing was run. The first step of the S3 plan is a 30-minute hands-on check: register a test App, set it as the Supabase GitHub provider, sign in, and confirm email and `provider_token` arrive. If it fails, the fallback is a separate OAuth app that signs users in, with scopes `read:user user:email` and **no** repository scope, while the GitHub App keeps all repository access.
+
+## Amendment: S1b (2026-10-29)
+
+The `blocked` health rule in spec §6 includes "failing required checks". S1a skipped it. S1b reads it, which needs two more **read-only** repository permissions:
+
+| Permission | Why | Endpoints |
+|---|---|---|
+| Checks: read | check runs on an open artifact PR's head commit | `GET commits/:sha/check-runs` |
+| Commit statuses: read | older CI that reports statuses, not checks | `GET commits/:sha/status` |
+
+The App also subscribes to `pull_request_review_comment`, `check_run`, `check_suite` and `status`, so those changes refresh Chain within a minute (F-05).
+
+Nothing here writes. Chain still creates no check runs, statuses or comments. "Required" is not claimed, because reading branch protection needs Administration access (spec open question 6). Any failing check counts. Source: [intent/s1b-sync/spec.md](../../intent/s1b-sync/spec.md).
