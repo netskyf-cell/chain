@@ -62,3 +62,14 @@ At the end, the demo moment works in a browser.
 ## Not in this plan
 
 Pull request state, lifecycle, database cache, sign-in, previews, source labels, themes. They belong to S1 to S4.
+
+## Divergences absorbed (after build)
+
+What the build PRs did differently, now part of this plan. Each line names its PR.
+
+| PR | Change accepted into the plan |
+|---|---|
+| #6 | `test/helpers.js` turns a fixture folder into the `{ files, read }` shape. The custom-paths fixture keeps a decoy `capabilities/ignored.md`. |
+| #7 | Per-client rate limit, `lib/rate-limit.js`, 30 requests per minute (CLAUDE.md security rule). The connector reads `commits/HEAD`, which is still 2 REST calls. `test/fake-github.js` replays recorded responses. |
+| #7, #9 | B4 and AC-16 were verified against recorded responses. The live check is still open: it needs the repository public and a token on the owner's machine or on Vercel (SETUP.md). |
+| #9 | `public/js/dom.js` (text-only DOM), `public/js/main.js` (entry point), `public/package.json` (ES modules in Node tests). `vercel.json` is written but deployed by the owner. |

@@ -56,3 +56,14 @@ No network, no UI.
 ## Carried to S2 (from the owner's question on drift)
 
 The `compliance` pass in `REVIEW.md` compares a PR to `plan.md` only. S2's intent will propose extending it to the spec's acceptance criteria and the intent's non-goals, tagged `[compliance]`, so content drift against intent and spec reaches Chain's signals without Chain calling a model (ADR-0008).
+
+## Divergences absorbed (after build)
+
+What the build PRs did differently, now part of this plan. Each line names its PR.
+
+| PR | Change accepted into the plan |
+|---|---|
+| #13 | One scenario file, `fixtures/prs/conventional.json`, with edge cases built in the tests. Spec clarifications: a missing intent reads `no intent` first. An artifact PR has every file under the intent path. A `COMMENTED` review does not replace a verdict. A PR-only feature takes its capability from `Capability:`. |
+| #14 | `lib/config.js` reads `chain.yml`, moved out of `scan()`. Recordings were refreshed to current `main`. The feature view shows the real state text. Open-PR cases use synthetic `rawPr()`. |
+| #15 | `shipped` needs `Plan complete: yes` on the last build PR, merged after the plan (also in the spec and the PR templates). |
+| #16 | `public/js/labels.js` gives every state an icon and text. The feature view lists its linked PRs. C5 (the live demo moment) is still open until the repository is public. |
