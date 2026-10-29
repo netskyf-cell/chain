@@ -71,3 +71,5 @@ What the build PRs did differently, now part of this plan. Each line names its P
 ## Rule revision after the first live run (2026-10-29)
 
 The plan's acceptance time is now the **first** merge of `plan.md` in the window, not the most recent (spec, Lifecycle). Code: `lib/reconcile/state.js` `lifecycle()`; test in `test/state.test.js`.
+
+Second revision (same day, live): acceptance is the PR that **added** `plan.md`; if it is outside the window, all merged builds count (S0's plan PR #5 had left the 30-PR window).

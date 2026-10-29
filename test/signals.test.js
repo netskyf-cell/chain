@@ -129,3 +129,17 @@ test('without history or findings, S1a behaviour is unchanged (no signals)', () 
   assert.deepEqual(r.signals, []);
   assert.ok(r.features.every((f) => f.health.status === 'on track'));
 });
+
+test('live fix: a divergence is absorbed by a plan PR MERGED later, even if its commit was written earlier', () => {
+  const planPr = (number, mergedAt) => ({
+    number, title: `Plan update ${number}`, url: `https://github.com/o/r/pull/${number}`, author: 'dev',
+    createdAt: '2026-10-09T09:00:00Z', updatedAt: mergedAt, mergedAt, draft: false,
+    body: 'Feature: dv', labels: [], requestedReviewers: [],
+    files: [{ path: 'intent/dv/plan.md', status: 'modified', additions: 3, deletions: 0 }], reviews: [], comments: [],
+  });
+  // PR #31 (divergence) merged 2026-10-10. History has no plan commit after that date.
+  const later = run({ merged: [...S.merged, planPr(50, '2026-10-11T10:00:00Z')] });
+  assert.deepEqual(kinds(sigs(later, { feature: 'dv' })), [], 'merged after #31: absorbed');
+  const earlier = run({ merged: [...S.merged, planPr(51, '2026-10-09T12:00:00Z')] });
+  assert.deepEqual(kinds(sigs(earlier, { feature: 'dv' })), ['pr_declares_divergence'], 'merged before #31: not absorbed');
+});

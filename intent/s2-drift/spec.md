@@ -49,7 +49,7 @@ Over a cap, the remaining items are skipped and the response says `historyPartia
 | `intent_rework` | A commit changes `intent.md` after the first commit of `spec.md` | warn | the intent commit | `spec.md` has a later commit than that intent commit |
 | `spec_rework` | A commit changes `spec.md` after the first commit of `plan.md` | warn | the spec commit | `plan.md` has a later commit than that spec commit |
 | `plan_revised` | A build PR changes `plan.md` | info | the PR | never (information only) |
-| `pr_declares_divergence` | A linked PR's "Divergences from plan" section is not empty and not "None" | warn | the PR | for a merged PR: `plan.md` has a commit after the PR's merge (the plan absorbed the divergence) |
+| `pr_declares_divergence` | A linked PR's "Divergences from plan" section is not empty and not "None" | warn | the PR | for a merged PR: a PR changing `plan.md` was **merged** after it, or `plan.md` has a commit dated after its merge (the plan absorbed the divergence) |
 | `compliance_finding` | A review body or inline comment on a linked PR has a line `[compliance] Important: …` or `[compliance] Block: …` | high | the review or comment | never in S2 (dismissal with a reason is F-26, release 1.1) |
 | `gate_bypassed` | A commit on the default branch changed an artifact and is contained in no PR | high | the commit | never in S2 |
 | `light_path_large` | A light PR has more files than `light.max_files` or more changed lines than `light.max_changed_lines` | warn | the PR | never |
