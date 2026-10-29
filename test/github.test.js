@@ -168,3 +168,17 @@ test('pull request reads send the token only in the Authorization header', async
     assert.ok(!call.url.includes('tok-456'));
   }
 });
+
+// S1b plan A3: the connector reads through the HTTP cache unchanged (it takes `fetch`).
+test('S1b A3: a second scan through the HTTP cache makes no GitHub call while fresh', async () => {
+  const { createHttpCache } = require('../lib/store/http-cache');
+  const { createMemoryStore } = require('../lib/store/memory');
+  const raw = fakeFetch();
+  const store = createMemoryStore();
+  const cached = createHttpCache({ store, fetch: raw, now: () => Date.parse('2026-10-29T12:00:00Z') });
+  const first = await readPullRequests(REPO, { fetch: cached });
+  const callsAfterFirst = raw.calls.length;
+  const second = await readPullRequests(REPO, { fetch: cached });
+  assert.equal(raw.calls.length, callsAfterFirst, 'all answered from the cache');
+  assert.deepEqual(second, first);
+});
