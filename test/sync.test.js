@@ -72,3 +72,29 @@ test('webhook marking: push to another branch marks nothing; checks mark their h
     ['https://api.github.com/repos/netskyf-cell/chain/commits/abc/check-runs']);
   assert.deepEqual(changedPrefixes('star', {}, REPO_ROW), []);
 });
+
+test('S1b live fix: a webhook refresh 10 min after the last one re-checks only what the event marked, with one cache query per prefix', async () => {
+  const { preloadCache, WEBHOOK_MAX_AGE_MS } = require('../lib/store/http-cache');
+  const opened = rawPr(120, { title: 'Build: chain', body: 'Feature: chain', updated_at: '2026-10-28T14:00:00Z' });
+  const before = fakeFetch('ok', { open: [opened], files: files120 });
+  const merged = { ...opened, state: 'closed', merged_at: '2026-10-28T15:09:00Z', updated_at: '2026-10-28T15:09:00Z' };
+  const after = fakeFetch('ok', { open: [], closed: [merged, ...recordedClosed], files: files120 });
+  const net = switchable(before, after);
+  const store = createMemoryStore();
+  let now = NOW;
+  await refresh({ repoRow: REPO_ROW, fetch: createHttpCache({ store, fetch: net, now: () => now }), token: 't', store, now: () => now });
+
+  // 10 minutes later every entry is older than the 5-minute page-load window.
+  now = NOW + 10 * 60 * 1000;
+  net.flip();
+  await store.markChanged(changedPrefixes('pull_request', { action: 'closed', pull_request: { number: 120 } }, REPO_ROW));
+  let singleReads = 0;
+  const counting = { ...store, getCache: async (k) => { singleReads += 1; return store.getCache(k); } };
+  const preload = await preloadCache(counting, REPO_ROW.gh_owner, REPO_ROW.gh_name);
+  const cached = createHttpCache({ store: counting, fetch: net, now: () => now, maxAgeMs: WEBHOOK_MAX_AGE_MS, preload });
+  await refresh({ repoRow: REPO_ROW, fetch: cached, token: 't', store, now: () => now });
+
+  assert.ok(after.calls.length <= 12, `made ${after.calls.length} GitHub calls (live run re-checked ~134)`);
+  assert.equal(singleReads, 0, 'no per-URL database read');
+  assert.equal(store._debug.states.get('repo-1').pull_requests.find((p) => p.number === 120).state, 'merged');
+});

@@ -79,3 +79,11 @@ test('errors name the table and status, never the key', async () => {
   });
   assert.throws(() => createSupabaseStore({ url: '', key: KEY, fetch }), /not configured/);
 });
+
+test('getCacheMany reads a whole prefix in one request', async () => {
+  const fetch = fakeFetch([{ status: 200, body: [{ key: 'k1', etag: null, body: { text: '[]', headers: {} }, checked_at: 't', changed: false }] }]);
+  const rows = await store(fetch).getCacheMany('https://api.github.com/repos/o/r/');
+  assert.equal(fetch.calls.length, 1);
+  assert.match(fetch.calls[0].url, /sync_cache\?key=like\.https%3A%2F%2Fapi\.github\.com%2Frepos%2Fo%2Fr%2F\*&select=\*$/);
+  assert.deepEqual(rows.map((r) => r.key), ['k1']);
+});

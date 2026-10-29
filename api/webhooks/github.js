@@ -10,7 +10,7 @@
 const crypto = require('node:crypto');
 const { send, rawBody } = require('../../lib/http');
 const { changedPrefixes } = require('../../lib/webhook-events');
-const { createHttpCache } = require('../../lib/store/http-cache');
+const { createHttpCache, preloadCache, WEBHOOK_MAX_AGE_MS } = require('../../lib/store/http-cache');
 const { refresh: defaultRefresh } = require('../../lib/sync');
 
 function validSignature(secret, body, header) {
@@ -85,7 +85,10 @@ function createWebhookHandler({ secret, store, appAuth, fetch, now, refresh = de
       await store.markChanged(prefixes);
 
       const token = await appAuth.installationToken(current.installation_id);
-      const cached = createHttpCache({ store, fetch, now });
+      // Trust the webhook: only what it marked is re-checked; the rest comes from one
+      // preloaded query (S1b live check: re-checking all stale entries took ~85 s).
+      const preload = await preloadCache(store, current.gh_owner, current.gh_name);
+      const cached = createHttpCache({ store, fetch, now, maxAgeMs: WEBHOOK_MAX_AGE_MS, preload });
       await refresh({ repoRow: current, fetch: cached, token, store, now });
       return send(res, 202, { status: 'refreshed' });
     } catch (err) {
