@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createDemoHandler } = require('../api/demo');
-const { fakeFetch, SHA } = require('./fake-github');
+const { fakeFetch, rawPr, SHA } = require('./fake-github');
 
 // Minimal request and response objects, compatible with node:http and Vercel.
 function call(handler, url, { method = 'GET', ip = '1.2.3.4' } = {}) {
@@ -19,8 +19,8 @@ function call(handler, url, { method = 'GET', ip = '1.2.3.4' } = {}) {
   });
 }
 
-function setup(mode = 'ok', { token = 'secret-token-xyz', start = 0 } = {}) {
-  const fetch = fakeFetch(mode);
+function setup(mode = 'ok', { token = 'secret-token-xyz', start = 0, fake = {} } = {}) {
+  const fetch = fakeFetch(mode, fake);
   let now = start;
   const handler = createDemoHandler({ fetch, token, now: () => now });
   return { handler, fetch, advance: (ms) => { now += ms; } };
@@ -156,4 +156,21 @@ test('rate limit per client: the 31st request in a minute returns 429', async ()
   assert.equal(last.status, 429);
   const other = await call(handler, '/api/demo?repo=netskyf-cell/chain', { ip: '8.8.8.8' });
   assert.equal(other.status, 200);
+});
+
+test('AC-13 demo moment: a review saying "[compliance] Important: AC-3 not met" turns the feature to drift, with a link', async () => {
+  // Chain's recorded history plus one synthetic open build PR for a feature with no other signal.
+  const review = 'https://github.com/netskyf-cell/chain/pull/120#pullrequestreview-1';
+  const fake = {
+    open: [rawPr(120, { title: 'Build: chain', body: 'Feature: chain', updated_at: '2026-10-28T14:00:00Z' })],
+    files: { 120: [{ filename: 'lib/x.js', status: 'added', additions: 10, deletions: 0 }] },
+    reviews: { 120: [{ user: { login: 'reviewer' }, state: 'COMMENTED', submitted_at: '2026-10-28T14:30:00Z', html_url: review,
+      body: 'Compliance pass.\n[compliance] Important: AC-3 not met' }] },
+  };
+  const { handler } = setup('ok', { start: Date.parse('2026-10-28T15:00:00Z'), fake });
+  const r = await call(handler, '/api/demo?repo=netskyf-cell/chain');
+  const chain = r.body.model.features.find((f) => f.slug === 'chain');
+  assert.deepEqual(chain.health, { status: 'drift', reason: 'PR #120 [compliance] Important: AC-3 not met' });
+  const s = r.body.model.signals.find((x) => x.feature === 'chain');
+  assert.deepEqual([s.kind, s.severity, s.evidence.type, s.evidence.url], ['compliance_finding', 'high', 'review', review]);
 });

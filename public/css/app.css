@@ -94,6 +94,9 @@ h1.mono { font-size: 22px; }
   font-size: 12px; white-space: nowrap;
 }
 .pill.health.blocked { border-color: var(--blocked); color: var(--blocked); }
+.pill.health.drift, .pill.severity.warn { border-color: var(--proposed); color: var(--proposed); }
+.pill.severity.high { border-color: var(--danger); color: var(--danger); }
+.pill.severity.info { color: var(--text-muted); }
 .pill.lifecycle.shipped { border-color: var(--present); color: var(--present); }
 .pill.lifecycle.no-intent { border-color: var(--proposed); color: var(--proposed); }
 
@@ -110,6 +113,15 @@ h1.mono { font-size: 22px; }
 .light { margin-top: var(--space-6); }
 .light ul { padding-left: var(--space-4); }
 h2.section { margin-top: var(--space-6); }
+
+.signals { list-style: none; padding-left: 0; display: grid; gap: var(--space-3); }
+.signal {
+  background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border);
+  border-radius: var(--radius); padding: var(--space-3) var(--space-4); display: grid; gap: var(--space-1);
+}
+.signal.warn { border-left-color: var(--proposed); }
+.signal.high { border-left-color: var(--danger); }
+.signal .rule { font-size: 13px; }
 
 .table-wrap { overflow-x: auto; }
 .queue { border-collapse: collapse; width: 100%; font-size: 14px; }
