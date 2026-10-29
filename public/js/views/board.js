@@ -6,6 +6,7 @@
 import { h, notice } from '../dom.js';
 import { featureRoute, route } from '../router.js';
 import { lifecycleBadge, healthBadge, severityBadge } from '../labels.js';
+import { clock } from '../poll.js';
 
 function featureRow(repo, feature) {
   return h('li', { class: 'feature-row' },
@@ -44,6 +45,10 @@ export function renderBoard(data) {
   const out = [
     h('div', { class: 'board-head' },
       h('h2', {}, repo, ' ', h('span', { class: 'mono muted' }, `@ ${String(sha).slice(0, 7)}`)),
+      data.source === 'state' && data.refreshedAt
+        ? h('span', { class: 'updated muted', role: 'status' },
+          h('span', { 'aria-hidden': 'true' }, '↻ '), `Updated ${clock(data.refreshedAt)} · refreshes every 30 s`)
+        : null,
       h('a', { class: `badge ${waiting ? 'waiting' : 'clear'}`, href: route('waiting', { repo }) },
         h('span', { 'aria-hidden': 'true' }, waiting ? '⏳' : '✓'),
         waiting ? `${waiting} waiting on a human` : 'Nothing waiting')),

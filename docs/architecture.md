@@ -114,6 +114,13 @@ sequenceDiagram
   R-->>DB: derived features, artifacts, signals
 ```
 
+**As built in S1b.** `api/webhooks/github.js` verifies the signature on the raw body and records each delivery once. It marks the cached GitHub responses the event changed (`lib/webhook-events.js`), then calls `lib/sync.js` `refresh()`:
+1. The connector reads through the ETag cache (`lib/store/http-cache.js`).
+2. `reconcile()` derives the state.
+3. The facts snapshot goes to `observations`, and the derived rows go through `replace_repo_state()` in one transaction.
+
+`api/state.js` serves installed public repositories from that state, refreshing data older than 5 minutes. The board polls it every 30 seconds while visible.
+
 ### 6.2 Public repository (demo path)
 
 No installation exists, so no webhook. The demo scan runs on request: it reads through a server-held read-only token, uses ETag conditional requests, and caches results for 5 minutes in Supabase. A response that returns "not modified" does not count against the primary rate limit.
