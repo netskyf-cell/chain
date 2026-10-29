@@ -244,7 +244,7 @@ Structured logs with request id, repo id and duration. No repository content and
 | Spike | Question | Blocks |
 |---|---|---|
 | S-A | Does Claude Code's OpenTelemetry export give what Chain needs (feature attribution, plan-mode identification, session times, repository identity) with content flags off? If not, what does a hook receive? | Release 1.1 (ADR-0006) |
-| S-B | Can the GitHub App's user authorisation back Supabase sign-in, or is a separate OAuth app needed? | Slice S3 (ADR-0004) |
+| S-B | Can the GitHub App's user authorisation back Supabase sign-in, or is a separate OAuth app needed? **Desk result: likely yes, one App (ADR-0004); hands-on check first in S3** | Slice S3 (ADR-0004) |
 | S-C | REST or GraphQL for batching pull requests, reviews and files? | Slice S1 |
 | S-D | How do real review findings look, and does the `[pass]` tag survive? | Slice S2 |
 | S-E | Which Jira, Linear and Azure DevOps read scopes are enough? | Release 1.2 |

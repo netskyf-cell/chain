@@ -9,7 +9,7 @@ Statuses: `proposed` (needs a spike or a confirmation), `accepted`, `superseded 
 | [0001](0001-git-is-the-system-of-record.md) | Git is the system of record for intent, spec and plan | accepted |
 | [0002](0002-artifact-chain-convention.md) | Adopt the folder-per-feature artifact chain convention | accepted |
 | [0003](0003-status-derived-from-pr-state.md) | Status is derived from pull request state, never written in files | accepted |
-| [0004](0004-github-app-read-only.md) | Access GitHub through a read-only GitHub App | accepted (spike S-B open) |
+| [0004](0004-github-app-read-only.md) | Access GitHub through a read-only GitHub App | accepted (spike S-B: desk result, check in S3) |
 | [0005](0005-connector-seam-and-pure-reconcile.md) | Connectors observe, one pure function decides | accepted |
 | [0006](0006-claude-code-sessions-via-hooks-metadata-only.md) | Coding-agent session data: metadata only, documented export first, hook as fallback | **proposed** (spikes S-A, S-H) |
 | [0007](0007-link-dont-replace-pm-tools.md) | Link to PM tools by ID, do not replace them | accepted |
