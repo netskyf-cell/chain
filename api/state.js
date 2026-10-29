@@ -11,7 +11,7 @@
 const { send, clientId } = require('../lib/http');
 const { parseRepo } = require('./demo');
 const { createRateLimit } = require('../lib/rate-limit');
-const { createHttpCache } = require('../lib/store/http-cache');
+const { createHttpCache, preloadCache } = require('../lib/store/http-cache');
 const { refresh: defaultRefresh, derive, historyPartial } = require('../lib/sync');
 
 const STALE_MS = 5 * 60 * 1000;
@@ -48,7 +48,8 @@ function createStateHandler({ store, appAuth, fetch, now, refresh = defaultRefre
       let refreshedAt;
       if (stale) {
         const token = await appAuth.installationToken(row.installation_id);
-        const cached = createHttpCache({ store, fetch, now });
+        const preload = await preloadCache(store, row.gh_owner, row.gh_name);
+        const cached = createHttpCache({ store, fetch, now, preload });
         ({ facts, model, refreshedAt } = await refresh({ repoRow: row, fetch: cached, token, store, now }));
       } else {
         facts = snapshot.payload;
