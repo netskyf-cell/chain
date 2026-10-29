@@ -89,7 +89,8 @@ function createWebhookHandler({ secret, store, appAuth, fetch, now, refresh = de
       await refresh({ repoRow: current, fetch: cached, token, store, now });
       return send(res, 202, { status: 'refreshed' });
     } catch (err) {
-      console.error(`webhooks/github: ${err.code || 'error'} on ${event}`);
+      // App-auth and store messages are written to carry no secret (lib/github-app.js, lib/store/supabase.js).
+      console.error(`webhooks/github: ${err.code || 'error'} on ${event}${['app_auth', 'store'].includes(err.code) ? ` (${err.message})` : ''}`);
       return send(res, 500, { error: 'Could not process the event.' });
     }
   };
