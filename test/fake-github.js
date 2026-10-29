@@ -7,6 +7,7 @@
 //                 their files and reviews by PR number.
 // options.next:   add a Link header with rel="next" to the open PR list.
 // options.closed: replace the recorded closed PR list.
+// options.checkRuns / statuses: by head SHA; a number is returned as that HTTP status.
 // options.comments / history / commitPulls: override recorded S2 responses
 //                 (by PR number, artifact path and commit SHA).
 const fs = require('node:fs');
@@ -83,6 +84,18 @@ function fakeFetch(mode = 'ok', options = {}) {
         const name = u.searchParams.get('path').replace(/\//g, '__');
         if (options.history && options.history[u.searchParams.get('path')]) return response(200, options.history[u.searchParams.get('path')]);
         return recorded(path.join('history', `${name}.json`), []);
+      }
+      const runs = p.match(/^\/commits\/([0-9a-z]+)\/check-runs$/);
+      if (runs) {
+        const v = options.checkRuns && options.checkRuns[runs[1]];
+        if (typeof v === 'number') return response(v, { message: 'x' });
+        return response(200, v || { check_runs: [] });
+      }
+      const status = p.match(/^\/commits\/([0-9a-z]+)\/status$/);
+      if (status) {
+        const v = options.statuses && options.statuses[status[1]];
+        if (typeof v === 'number') return response(v, { message: 'x' });
+        return response(200, v || { statuses: [] });
       }
       const pulls = p.match(/^\/commits\/([0-9a-z]+)\/pulls$/);
       if (pulls) {

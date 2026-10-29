@@ -48,8 +48,13 @@ function serveStatic(req, res) {
   });
 }
 
+const state = require('./api/state');
+const webhooks = require('./api/webhooks/github');
+
 const server = http.createServer((req, res) => {
   if (req.url.startsWith('/api/demo')) return demo(req, res);
+  if (req.url.startsWith('/api/state')) return state(req, res);
+  if (req.url.startsWith('/api/webhooks/github')) return webhooks(req, res);
   return serveStatic(req, res);
 });
 

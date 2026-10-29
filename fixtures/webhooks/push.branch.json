@@ -1,0 +1,6 @@
+{
+  "ref": "refs/heads/claude/intent-x",
+  "repository": { "id": 1, "name": "chain", "full_name": "netskyf-cell/chain", "private": false, "default_branch": "main", "owner": { "login": "netskyf-cell", "name": "netskyf-cell" } },
+  "installation": { "id": 9 },
+  "sender": { "login": "netskyf-cell" }
+}

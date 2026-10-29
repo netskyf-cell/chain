@@ -150,6 +150,8 @@ test('maps GitHub fields to PR facts, teams included', async () => {
     body: 'Feature: x', labels: ['feature:x'], requestedReviewers: ['owner', 'team:product'],
     files: [{ path: 'intent/x/b.md', status: 'renamed', additions: 1, deletions: 0, previousPath: 'intent/x/a.md' }],
     mergeCommitSha: null,
+    headSha: null,
+    checks: null,
     reviews: [{ user: 'bob', state: 'CHANGES_REQUESTED', submittedAt: '2026-10-27T11:00:00Z', body: '', url: null }],
     comments: [{ user: 'rev', body: '[compliance] Important: AC-2 not met', createdAt: '2026-10-27T12:00:00Z', url: 'https://github.com/netskyf-cell/chain/pull/103#discussion_r1' }],
   });
@@ -181,4 +183,20 @@ test('S1b A3: a second scan through the HTTP cache makes no GitHub call while fr
   const second = await readPullRequests(REPO, { fetch: cached });
   assert.equal(raw.calls.length, callsAfterFirst, 'all answered from the cache');
   assert.deepEqual(second, first);
+});
+
+test('S1b B1: with readChecks, open PRs carry check runs and statuses of their head commit', async () => {
+  const open = [rawPr(130, { head: { sha: 'abc123' } }), rawPr(131, { head: { sha: 'def456' } })];
+  const checkRuns = { abc123: { check_runs: [{ name: 'test', status: 'completed', conclusion: 'failure' }] } };
+  const statuses = { abc123: { statuses: [{ context: 'ci/legacy', state: 'success' }] }, def456: 403 };
+  const fetch = fakeFetch('ok', { open, checkRuns, statuses });
+  const prs = await readPullRequests(REPO, { fetch, readChecks: true });
+  assert.deepEqual(prs.open[0].checks, {
+    runs: [{ name: 'test', status: 'completed', conclusion: 'failure' }],
+    statuses: [{ context: 'ci/legacy', state: 'success' }],
+  });
+  assert.equal(prs.open[0].headSha, 'abc123');
+  assert.deepEqual(prs.open[1].checks, { runs: [], statuses: [] }, 'runs read (empty); status 403 counts as not read');
+  const noChecks = await readPullRequests(REPO, { fetch: fakeFetch('ok', { open }) });
+  assert.equal(noChecks.open[0].checks, null, 'demo mode does not read checks');
 });
