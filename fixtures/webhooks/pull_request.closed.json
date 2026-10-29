@@ -1,0 +1,8 @@
+{
+  "action": "closed",
+  "number": 120,
+  "pull_request": { "number": 120, "state": "closed", "merged": true, "merged_at": "2026-10-28T14:55:00Z", "head": { "sha": "abc120" }, "base": { "ref": "main" } },
+  "repository": { "id": 1, "name": "chain", "full_name": "netskyf-cell/chain", "private": false, "default_branch": "main", "owner": { "login": "netskyf-cell" } },
+  "installation": { "id": 9 },
+  "sender": { "login": "netskyf-cell" }
+}

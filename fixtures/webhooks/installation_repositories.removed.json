@@ -1,0 +1,7 @@
+{
+  "action": "removed",
+  "installation": { "id": 9, "account": { "login": "netskyf-cell" } },
+  "repositories_added": [],
+  "repositories_removed": [{ "id": 2, "name": "secret-project", "full_name": "netskyf-cell/secret-project", "private": true }],
+  "sender": { "login": "netskyf-cell" }
+}

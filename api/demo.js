@@ -11,10 +11,7 @@
 // Works as a Vercel function and under dev-server.js: it only uses
 // req.method, req.url, req.headers, res.statusCode, res.setHeader and res.end.
 
-const { readRepo, readPullRequests, readHistory } = require('../lib/connectors/github');
-const { scan } = require('../lib/scan');
-const { readConfig } = require('../lib/config');
-const { reconcile } = require('../lib/reconcile/state');
+const { collect, derive, historyPartial } = require('../lib/sync');
 const { createCache } = require('../lib/cache');
 const { createRateLimit } = require('../lib/rate-limit');
 
@@ -71,25 +68,15 @@ function createDemoHandler({ fetch, token, now }) {
     if (cached) return send(res, 200, cached);
 
     try {
-      const source = await readRepo(repo, { fetch, token });
-      const [scanned, config, prs] = await Promise.all([
-        scan(source),
-        readConfig(source),
-        readPullRequests(repo, { fetch, token }),
-      ]);
-      // S2: history of the artifacts on the default branch, since the oldest
-      // merged PR in the window was opened (spec S2, decision 2).
-      const paths = scanned.features.flatMap((f) => Object.values(f.artifacts).filter((a) => a.state === 'present').map((a) => a.path));
-      const since = prs.merged.map((pr) => pr.createdAt).sort()[0] || null;
-      const history = await readHistory(repo, { paths, since }, { fetch, token });
+      const facts = await collect(repo, { fetch, token });
       // reconcile() is pure: the current time is passed in, never read inside.
-      const model = reconcile({ model: scanned, prs, history: history.history, config, now: new Date(now()).toISOString() });
+      const model = derive(facts, new Date(now()).toISOString());
       const body = {
         repo: `${repo.owner}/${repo.name}`,
-        sha: source.sha,
-        truncated: source.truncated,
-        partial: prs.partial,
-        historyPartial: history.partial || Boolean(prs.findingsPartial),
+        sha: facts.sha,
+        truncated: facts.truncated,
+        partial: facts.prs.partial,
+        historyPartial: historyPartial(facts),
         model,
       };
       cache.set(key, body);
