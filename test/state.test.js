@@ -96,6 +96,14 @@ test('AC-6: shipped needs the build PR merged after the plan was accepted', asyn
   assert.equal(f.full.lifecycle, 'planned', 'a build merged before the plan does not count');
 });
 
+test('AC-6 (revised after the live run): a later plan revision does not move acceptance back', async () => {
+  // Plan accepted by #5, built and completed by #6, then the plan is updated (#7, e.g. absorbing
+  // divergences). The feature stays shipped: acceptance is the FIRST plan merge in the window.
+  const revision = { ...PRS.merged[1], number: 7, title: 'Plans: absorb divergences', mergedAt: '2026-10-08T12:00:00Z', url: 'https://github.com/o/r/pull/7' };
+  const f = byslug(await run({ ...PRS, merged: [...PRS.merged, revision] }));
+  assert.equal(f.full.lifecycle, 'shipped');
+});
+
 test('AC-6: plan acceptance PR outside the window: any merged build PR counts', async () => {
   const f = byslug(await run({ ...PRS, merged: [PRS.merged[0], PRS.merged[2]] }));
   assert.equal(f.full.lifecycle, 'shipped');

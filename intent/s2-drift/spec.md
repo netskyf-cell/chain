@@ -60,7 +60,7 @@ Over a cap, the remaining items are skipped and the response says `historyPartia
 
 ### Reading the "Divergences from plan" section
 
-The text between the heading `## Divergences from plan` and the next `## ` heading, with HTML comments removed and whitespace trimmed. Empty, `None`, `None.` or `n/a` (any case) means no divergence. A PR without the heading declares nothing.
+The text between the heading `## Divergences from plan` and the next `## ` heading, with HTML comments removed and whitespace trimmed. Empty, or text whose first word is `None` or `n/a` (any case, for example `None.`, `None (plan only).`, `None beyond those listed in #21.`), means no divergence. (Revised 2026-10-29 after the first live run, where the PR template's explanatory "None. …" lines were read as divergences.) A PR without the heading declares nothing.
 
 ### Reading findings (REVIEW.md format)
 

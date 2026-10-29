@@ -50,3 +50,7 @@ The last PR carries `Plan complete: yes`.
 ## For every pull request
 
 `npm test` green, `architecture-guard` run, **Plan match**, **Divergences from plan** and **Verification** filled with evidence. No migration, no deploy.
+
+## Rule revision after the first live run (2026-10-29)
+
+A "Divergences from plan" section whose first word is `None` or `n/a` declares nothing (spec, Reading the section). Code: `lib/parse/pr-body.js` `parseDivergences()`; tests in `test/pr-body.test.js`.

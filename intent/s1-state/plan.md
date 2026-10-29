@@ -67,3 +67,7 @@ What the build PRs did differently, now part of this plan. Each line names its P
 | #14 | `lib/config.js` reads `chain.yml`, moved out of `scan()`. Recordings were refreshed to current `main`. The feature view shows the real state text. Open-PR cases use synthetic `rawPr()`. |
 | #15 | `shipped` needs `Plan complete: yes` on the last build PR, merged after the plan (also in the spec and the PR templates). |
 | #16 | `public/js/labels.js` gives every state an icon and text. The feature view lists its linked PRs. C5 (the live demo moment) is still open until the repository is public. |
+
+## Rule revision after the first live run (2026-10-29)
+
+The plan's acceptance time is now the **first** merge of `plan.md` in the window, not the most recent (spec, Lifecycle). Code: `lib/reconcile/state.js` `lifecycle()`; test in `test/state.test.js`.
