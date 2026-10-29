@@ -61,7 +61,7 @@ test('maps other failures to upstream', async () => {
 });
 
 // ---- Pull requests (S1a, plan step B2, AC-10) ----
-const { readPullRequests, readHistory, CAPS } = require('../lib/connectors/github');
+const { readPullRequests, readHistory, readCompletions, CAPS } = require('../lib/connectors/github');
 const { rawPr, recordedClosed } = require('./fake-github');
 
 test('reads merged PRs with their files; closed-but-unmerged PRs are dropped', async () => {
@@ -199,4 +199,34 @@ test('S1b B1: with readChecks, open PRs carry check runs and statuses of their h
   assert.deepEqual(prs.open[1].checks, { runs: [], statuses: [] }, 'runs read (empty); status 403 counts as not read');
   const noChecks = await readPullRequests(REPO, { fetch: fakeFetch('ok', { open }) });
   assert.equal(noChecks.open[0].checks, null, 'demo mode does not read checks');
+});
+
+// ---- Older completions (S1 spec, lifecycle revised 2026-10-29) ----------------
+
+const hit = (number, merged_at = '2026-10-01T12:00:00Z') => ({
+  number, title: `PR ${number}`, html_url: `https://github.com/netskyf-cell/chain/pull/${number}`,
+  user: { login: 'dev' }, created_at: '2026-09-30T12:00:00Z', updated_at: merged_at,
+  body: 'Feature: s0-walking-skeleton\nPlan complete: yes', labels: [], pull_request: { merged_at },
+});
+
+test('older completions: one search, files for hits outside the window, unmerged and excluded hits dropped', async () => {
+  const search = [hit(9), hit(8), { ...hit(7), pull_request: { merged_at: null } }, hit(40)];
+  const fetch = fakeFetch('ok', { search, files: { 9: [{ filename: 'lib/x.js', status: 'added', additions: 1, deletions: 0 }] } });
+  const { prs, partial } = await readCompletions(REPO, { exclude: [40] }, { fetch });
+  assert.deepEqual(prs.map((p) => p.number), [9, 8]);
+  assert.equal(prs[0].mergedAt, '2026-10-01T12:00:00Z');
+  assert.deepEqual(prs[0].files.map((f) => f.path), ['lib/x.js']);
+  assert.equal(partial, false);
+  const q = new URL(fetch.calls[0].url).searchParams.get('q');
+  assert.equal(q, 'repo:netskyf-cell/chain is:pr is:merged "Plan complete: yes"');
+  assert.equal(fetch.calls.length, 3, '1 search + 2 file lists');
+});
+
+test('older completions: file reads stop at the cap; a failed search means not read', async () => {
+  const search = Array.from({ length: 12 }, (_, i) => hit(100 + i));
+  const capped = await readCompletions(REPO, {}, { fetch: fakeFetch('ok', { search }) });
+  assert.equal(capped.prs.length, CAPS.completions);
+  assert.equal(capped.partial, true);
+  const failed = await readCompletions(REPO, {}, { fetch: fakeFetch('ok', { search: 'fail' }) });
+  assert.deepEqual(failed, { prs: [], partial: true });
 });

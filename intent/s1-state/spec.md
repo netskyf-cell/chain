@@ -87,6 +87,8 @@ Revising counts as accepted.
 
 The plan's acceptance time is the `merged_at` of the merged PR in the window that **added** `plan.md` (file status `added`). Later PRs that change `plan.md` are revisions, and do not move acceptance: a plan updated after build (for example to absorb declared divergences) must not send a built feature back to `planned`. When the adding PR is outside the window, the plan was accepted before it, and every merged build PR counts. (Revised twice on 2026-10-29 after live runs; it was "the most recent", then "the first in the window".)
 
+**Completions older than the window** (third live revision, 2026-10-29). Once a feature's PRs leave the 30-PR window, nothing in the window says it shipped, and it fell back to `planned` (found live: S0). So each read also makes **one search** for merged PRs whose body contains `Plan complete: yes` (`repo:<owner>/<name> is:pr is:merged "Plan complete: yes"`, 30 results), and reads the files of those outside the window (at most 10 more calls). The search only finds candidates: the same linking and `Plan complete: yes` rules decide, and the same "merged after the plan's acceptance" check applies. These older PRs are used for `shipped` only: they are not listed and raise no signals. A failed search means "not read", and the lifecycle falls back to the window. A feature shipped before the `Plan complete: yes` rule existed has no such line: the owner adds it to the last build PR's description.
+
 ### Health (no drift until S2)
 
 | Health | Rule |
@@ -146,6 +148,6 @@ No conflict. Splitting S1 changes the umbrella spec's slice table: updated in th
 | Risk | Effect | Mitigation |
 |---|---|---|
 | Unauthenticated local use runs out of calls (60 per hour) | Local testing limited to one or two scans per hour | Use a token locally (`.env`), or the recorded fixtures |
-| PRs older than the window | `shipped` or links missed on slow repositories | Window stated in the UI; S1b reads history through webhooks |
+| PRs older than the window | Links and signals missed on slow repositories | Window stated in the UI; `shipped` survives through the completion search (lifecycle, third revision) |
 | Requested-changes reviews later dismissed | False `blocked` | Use each reviewer's latest review only |
 | Repository still private | Demo moment cannot run live | Owner makes it public, as decided |

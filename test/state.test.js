@@ -13,7 +13,7 @@ const CONFIG = { health: { stale_days: 7 } };
 
 async function run(prs = PRS, config = CONFIG, now = PRS.now) {
   const model = await scan(fixtureRepo('conventional'));
-  return reconcile({ model, prs: { open: prs.open, merged: prs.merged, partial: prs.partial }, config, now });
+  return reconcile({ model, prs: { open: prs.open, merged: prs.merged, older: prs.older, partial: prs.partial }, config, now });
 }
 
 const byslug = (r) => Object.fromEntries(r.features.map((f) => [f.slug, f]));
@@ -183,4 +183,27 @@ test('AC-6 (second live revision): plan-creating PR outside the window, only a r
     files: [{ path: 'intent/full/plan.md', status: 'modified', additions: 2, deletions: 0 }] };
   const f = byslug(await run({ ...PRS, merged: [PRS.merged[0], build, revision] }));
   assert.equal(f.full.lifecycle, 'shipped', 'the revision does not count as acceptance');
+});
+
+// ---- Older completions (live: S0 read "planned" once its PRs left the window) ----
+
+test('AC-6 (third live revision): a "Plan complete: yes" PR outside the window still ships the feature', async () => {
+  const done = PRS.merged[2]; // #6, the completing build
+  const r = await run({ ...PRS, merged: [PRS.merged[0]], older: [done] });
+  assert.equal(byslug(r).full.lifecycle, 'shipped');
+  assert.ok(!r.prs.some((p) => p.number === done.number), 'older PRs are not listed');
+  assert.ok(!r.signals.some((s) => s.pr === done.number), 'older PRs raise no signals');
+});
+
+test('AC-6 (third live revision): an older completion merged before the plan in the window does not count', async () => {
+  const early = { ...PRS.merged[2], mergedAt: '2026-09-25T12:00:00Z' };
+  const f = byslug(await run({ ...PRS, merged: [PRS.merged[0], PRS.merged[1]], older: [early] }));
+  assert.equal(f.full.lifecycle, 'planned');
+});
+
+test('AC-6 (third live revision): an older PR without the line, or already in the window, changes nothing', async () => {
+  const noLine = { ...PRS.merged[2], body: 'Feature: full' };
+  assert.equal(byslug(await run({ ...PRS, merged: [PRS.merged[0]], older: [noLine] })).full.lifecycle, 'planned');
+  const both = await run({ ...PRS, older: [PRS.merged[2]] });
+  assert.deepEqual(both, await run(PRS), 'a duplicate of a window PR is ignored');
 });
