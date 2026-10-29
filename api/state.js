@@ -68,7 +68,8 @@ function createStateHandler({ store, appAuth, fetch, now, refresh = defaultRefre
       });
     } catch (err) {
       const [status, body] = ERRORS[err.code] || [502, { error: 'Chain could not read this repository. Try again later.' }];
-      console.error(`api/state: ${err.code || 'error'}`);
+      // App-auth and store messages are written to carry no secret (lib/github-app.js, lib/store/supabase.js).
+      console.error(`api/state: ${err.code || 'error'}${['app_auth', 'store'].includes(err.code) ? ` (${err.message})` : ''}`);
       return send(res, status, body);
     }
   };
