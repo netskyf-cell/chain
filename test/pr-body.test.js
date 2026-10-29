@@ -69,3 +69,12 @@ test('parseDivergences: None, n/a, empty, comments only or no heading mean nothi
 test('parseDivergences works when the section is last and with Windows line endings', () => {
   assert.equal(parseDivergences('## Divergences from plan\r\n\r\nSkipped step 3.\r\n'), 'Skipped step 3.');
 });
+
+test('S2 revised after the live run: a section whose first word is None or n/a declares nothing', () => {
+  const body = (t) => `Feature: x\n\n## Divergences from plan\n${t}\n\n## Verification\nok`;
+  for (const t of ['None. This PR is the plan update.', 'None (plan only).', 'None beyond those listed in #21 and #23.', 'none', 'N/A: docs only']) {
+    assert.equal(parseDivergences(body(t)), null, t);
+  }
+  assert.equal(parseDivergences(body('Nonetheless, step 3 moved to a later PR.')), 'Nonetheless, step 3 moved to a later PR.');
+  assert.equal(parseDivergences(body('- None of the tests changed, but the API did.')), '- None of the tests changed, but the API did.', 'a bullet is a real divergence');
+});
