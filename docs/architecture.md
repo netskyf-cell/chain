@@ -163,7 +163,7 @@ All tables have `created_at` and `updated_at`. RLS is on for every table. The fu
 | Front end | Vanilla HTML, CSS variables, ES modules, hash routing | No build step (ADR-0009) |
 | API | Vercel serverless functions (Node, CommonJS) | One responsibility per function |
 | Database and auth | Supabase (Postgres, Auth, RLS), dedicated project | Standalone |
-| Source access | GitHub App, REST (GraphQL decided in spike) | Read-only |
+| Source access | GitHub App, REST with conditional requests, webhook-driven (ADR-0014) | Read-only |
 | Tests | Node's built-in test runner against fixtures | Pure core needs no network |
 | CI | GitHub Actions: tests, lint, Chain's own readiness check | |
 
@@ -245,7 +245,7 @@ Structured logs with request id, repo id and duration. No repository content and
 |---|---|---|
 | S-A | Does Claude Code's OpenTelemetry export give what Chain needs (feature attribution, plan-mode identification, session times, repository identity) with content flags off? If not, what does a hook receive? | Release 1.1 (ADR-0006) |
 | S-B | Can the GitHub App's user authorisation back Supabase sign-in, or is a separate OAuth app needed? **Desk result: likely yes, one App (ADR-0004); hands-on check first in S3** | Slice S3 (ADR-0004) |
-| S-C | REST or GraphQL for batching pull requests, reviews and files? | Slice S1 |
+| S-C | REST or GraphQL for batching pull requests, reviews and files? **Result: REST with ETags, driven by webhooks (ADR-0014)** | Slice S1 |
 | S-D | How do real review findings look, and does the `[pass]` tag survive? | Slice S2 |
 | S-E | Which Jira, Linear and Azure DevOps read scopes are enough? | Release 1.2 |
 | S-F | What do Spec Kit, Kiro and OpenSpec really write to disk for one small feature, and how does it map to intent, spec and plan? | Release 1.1 (ADR-0012) |

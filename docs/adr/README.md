@@ -19,5 +19,6 @@ Statuses: `proposed` (needs a spike or a confirmation), `accepted`, `superseded 
 | [0011](0011-light-path-for-small-changes.md) | A light path for small changes, with a size guard | accepted (thresholds unvalidated) |
 | [0012](0012-read-other-spec-layouts.md) | Read other spec-driven layouts through format readers | **proposed** (spike S-F) |
 | [0013](0013-agent-neutral.md) | Chain is neutral to the coding agent, its interface and its model | accepted (spike S-H open) |
+| [0014](0014-rest-with-etags-and-webhooks.md) | Read GitHub through REST with conditional requests, driven by webhooks | **proposed** (spike S-C result) |
 
 New ADR: copy [`template.md`](template.md), take the next number, and use the `adr` skill (`.claude/skills/adr/`).
