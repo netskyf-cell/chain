@@ -6,6 +6,9 @@
 //                 in GitHub's raw shape; options.files / options.reviews give
 //                 their files and reviews by PR number.
 // options.next:   add a Link header with rel="next" to the open PR list.
+// options.closed: replace the recorded closed PR list.
+// options.comments / history / commitPulls: override recorded S2 responses
+//                 (by PR number, artifact path and commit SHA).
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -26,6 +29,12 @@ function response(status, body, headers = {}) {
     json: async () => JSON.parse(text),
     text: async () => text,
   };
+}
+
+// A recorded file, or `fallback` when none was recorded.
+function recorded(rel, fallback) {
+  const f = path.join(DIR, rel);
+  return fs.existsSync(f) ? response(200, fs.readFileSync(f, 'utf8')) : response(200, fallback);
 }
 
 // mode: 'ok' | 'not-found' | 'rate-limited' | 'server-error'
@@ -50,7 +59,7 @@ function fakeFetch(mode = 'ok', options = {}) {
         const headers = options.next ? { link: '<https://api.github.com/x?page=2>; rel="next"' } : {};
         return response(200, open, headers);
       }
-      if (p === '/pulls' && u.searchParams.get('state') === 'closed') return response(200, recordedClosed);
+      if (p === '/pulls' && u.searchParams.get('state') === 'closed') return response(200, options.closed || recordedClosed);
       const files = p.match(/^\/pulls\/(\d+)\/files$/);
       if (files) {
         const n = Number(files[1]);
@@ -59,7 +68,27 @@ function fakeFetch(mode = 'ok', options = {}) {
         return fs.existsSync(f) ? response(200, fs.readFileSync(f, 'utf8')) : response(200, []);
       }
       const reviews = p.match(/^\/pulls\/(\d+)\/reviews$/);
-      if (reviews) return response(200, (options.reviews && options.reviews[Number(reviews[1])]) || []);
+      if (reviews) {
+        const n = Number(reviews[1]);
+        if (options.reviews && options.reviews[n]) return response(200, options.reviews[n]);
+        return recorded(path.join('pulls', 'reviews', `${n}.json`), []);
+      }
+      const comments = p.match(/^\/pulls\/(\d+)\/comments$/);
+      if (comments) {
+        const n = Number(comments[1]);
+        if (options.comments && options.comments[n]) return response(200, options.comments[n]);
+        return recorded(path.join('pulls', 'comments', `${n}.json`), []);
+      }
+      if (p === '/commits' && u.searchParams.get('path')) {
+        const name = u.searchParams.get('path').replace(/\//g, '__');
+        if (options.history && options.history[u.searchParams.get('path')]) return response(200, options.history[u.searchParams.get('path')]);
+        return recorded(path.join('history', `${name}.json`), []);
+      }
+      const pulls = p.match(/^\/commits\/([0-9a-z]+)\/pulls$/);
+      if (pulls) {
+        if (options.commitPulls && options.commitPulls[pulls[1]]) return response(200, options.commitPulls[pulls[1]]);
+        return recorded(path.join('commit-pulls', `${pulls[1]}.json`), []);
+      }
     }
     if (u.hostname === 'raw.githubusercontent.com') {
       const prefix = `/netskyf-cell/chain/${SHA}/`;

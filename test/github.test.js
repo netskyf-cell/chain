@@ -61,7 +61,7 @@ test('maps other failures to upstream', async () => {
 });
 
 // ---- Pull requests (S1a, plan step B2, AC-10) ----
-const { readPullRequests } = require('../lib/connectors/github');
+const { readPullRequests, readHistory, CAPS } = require('../lib/connectors/github');
 const { rawPr, recordedClosed } = require('./fake-github');
 
 test('reads merged PRs with their files; closed-but-unmerged PRs are dropped', async () => {
@@ -75,14 +75,64 @@ test('reads merged PRs with their files; closed-but-unmerged PRs are dropped', a
   assert.equal(prs.partial, false);
 });
 
-test('call budget: 2 lists, files for every PR, reviews for open PRs only', async () => {
+test('call budget: 2 lists, then files, reviews and inline comments for every PR (S2)', async () => {
   const open = [rawPr(101), rawPr(102)];
   const fetch = fakeFetch('ok', { open });
   const prs = await readPullRequests(REPO, { fetch });
   const merged = recordedClosed.filter((p) => p.merged_at).length;
-  assert.equal(fetch.restCalls(), 2 + 2 * open.length + merged);
-  assert.ok(!fetch.calls.some((c) => /\/pulls\/\d+\/reviews/.test(c.url) && !/\/pulls\/10[12]\//.test(c.url)));
+  assert.equal(fetch.restCalls(), 2 + 3 * (open.length + merged));
   assert.equal(prs.open.length, 2);
+  assert.equal(prs.findingsPartial, false);
+});
+
+test('AC-8: reviews of merged PRs stop at 30 and inline comments at 60', async () => {
+  const many = Array.from({ length: 30 }, (_, i) => rawPr(200 + i));
+  const closed = Array.from({ length: 35 }, (_, i) => rawPr(300 + i, { merged_at: '2026-10-27T12:00:00Z' }));
+  const fetch = fakeFetch('ok', { open: many, closed });
+  const prs = await readPullRequests(REPO, { fetch });
+  const count = (re) => fetch.calls.filter((c) => re.test(new URL(c.url).pathname)).length;
+  assert.equal(count(/\/pulls\/3\d\d\/reviews$/), CAPS.mergedReviews);
+  assert.equal(count(/\/comments$/), CAPS.comments);
+  assert.equal(count(/\/pulls\/2\d\d\/reviews$/), 30, 'open PR reviews (S1a) are not capped by S2');
+  assert.equal(prs.findingsPartial, true);
+});
+
+test('AC-8: artifact history reads commits per path and the PRs of each commit once', async () => {
+  const fetch = fakeFetch();
+  const paths = ['intent/chain/spec.md', 'intent/chain/intent.md', 'intent/s0-walking-skeleton/plan.md'];
+  const { history, partial } = await readHistory(REPO, { paths, since: '2026-10-26T11:44:35Z' }, { fetch });
+  assert.equal(partial, false);
+  assert.deepEqual(Object.keys(history), [...paths].sort());
+  assert.deepEqual(history['intent/chain/spec.md'].commits.map((c) => c.sha.slice(0, 7)), ['6e12c04', '1c1fade', '5709ba6']);
+  assert.deepEqual(history['intent/chain/spec.md'].commits[0].prs, [11]);
+  const pullCalls = fetch.calls.filter((c) => /\/commits\/[0-9a-f]+\/pulls$/.test(new URL(c.url).pathname)).length;
+  assert.equal(pullCalls, 4, 'shared commits are looked up once');
+  assert.ok(fetch.calls.every((c) => !/\/commits\?/.test(c.url) || new URL(c.url).searchParams.get('since') === '2026-10-26T11:44:35Z'));
+});
+
+test('AC-8: over the caps, paths are skipped and commits keep unknown PRs', async () => {
+  const paths = Array.from({ length: 32 }, (_, i) => `intent/f${String(i).padStart(2, '0')}/intent.md`);
+  const historyOver = {};
+  paths.forEach((p, i) => {
+    historyOver[p] = [{ sha: `a${String(i).padStart(3, '0')}`, html_url: 'https://github.com/x', commit: { committer: { date: '2026-10-27T10:00:00Z' } } }];
+  });
+  const fetch = fakeFetch('ok', { history: historyOver });
+  const { history, partial } = await readHistory(REPO, { paths, since: null }, { fetch });
+  assert.equal(partial, true);
+  assert.equal(Object.keys(history).length, CAPS.history);
+  const commits = Object.values(history).flatMap((h) => h.commits);
+  assert.equal(commits.filter((c) => Array.isArray(c.prs)).length, CAPS.commitPulls);
+  assert.ok(commits.every((c) => Array.isArray(c.prs) || !('prs' in c)));
+});
+
+test('AC-8: history reads send the token only in the Authorization header', async () => {
+  const fetch = fakeFetch();
+  await readHistory(REPO, { paths: ['intent/chain/spec.md'], since: '2026-10-26T11:44:35Z' }, { fetch, token: 'tok-789' });
+  assert.ok(fetch.calls.length > 0);
+  for (const call of fetch.calls) {
+    assert.equal(call.headers.Authorization, 'Bearer tok-789');
+    assert.ok(!call.url.includes('tok-789'));
+  }
 });
 
 test('maps GitHub fields to PR facts, teams included', async () => {
@@ -92,13 +142,16 @@ test('maps GitHub fields to PR facts, teams included', async () => {
   })];
   const files = { 103: [{ filename: 'intent/x/b.md', previous_filename: 'intent/x/a.md', status: 'renamed', additions: 1, deletions: 0 }] };
   const reviews = { 103: [{ user: { login: 'bob' }, state: 'CHANGES_REQUESTED', submitted_at: '2026-10-27T11:00:00Z' }] };
-  const prs = await readPullRequests(REPO, { fetch: fakeFetch('ok', { open, files, reviews }) });
+  const comments = { 103: [{ user: { login: 'rev' }, body: '[compliance] Important: AC-2 not met', created_at: '2026-10-27T12:00:00Z', html_url: 'https://github.com/netskyf-cell/chain/pull/103#discussion_r1' }] };
+  const prs = await readPullRequests(REPO, { fetch: fakeFetch('ok', { open, files, reviews, comments }) });
   assert.deepEqual(prs.open[0], {
     number: 103, title: 'PR 103', url: 'https://github.com/netskyf-cell/chain/pull/103', author: 'dev',
     createdAt: '2026-10-27T10:00:00Z', updatedAt: '2026-10-27T10:00:00Z', mergedAt: null, draft: false,
     body: 'Feature: x', labels: ['feature:x'], requestedReviewers: ['owner', 'team:product'],
     files: [{ path: 'intent/x/b.md', status: 'renamed', additions: 1, deletions: 0, previousPath: 'intent/x/a.md' }],
-    reviews: [{ user: 'bob', state: 'CHANGES_REQUESTED', submittedAt: '2026-10-27T11:00:00Z' }],
+    mergeCommitSha: null,
+    reviews: [{ user: 'bob', state: 'CHANGES_REQUESTED', submittedAt: '2026-10-27T11:00:00Z', body: '', url: null }],
+    comments: [{ user: 'rev', body: '[compliance] Important: AC-2 not met', createdAt: '2026-10-27T12:00:00Z', url: 'https://github.com/netskyf-cell/chain/pull/103#discussion_r1' }],
   });
 });
 
