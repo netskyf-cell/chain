@@ -90,7 +90,16 @@ On vercel.com, open the `chain` project, then **Settings → Environment Variabl
 Then **Deployments → … → Redeploy**. Until S1b Group B is merged, webhooks reach an address that does not exist yet and GitHub shows them as failed. That is expected and harmless.
 
 ### Check
-GitHub App settings → **Advanced → Recent Deliveries** lists one delivery per event. After Group B is deployed, they show `202`.
+GitHub App settings → **Advanced → Recent Deliveries** lists one delivery per event. Once deployed, they show `202`.
+
+### If something is wrong
+| You see | Likely cause | Fix |
+|---|---|---|
+| Deliveries show `401` | `GITHUB_WEBHOOK_SECRET` in Vercel differs from the App's webhook secret | Paste the same value in both, then redeploy |
+| Deliveries show `503` | A variable is missing in Vercel | Check all 5 S1b variables, then redeploy |
+| Deliveries show `500` | Database or App key problem | Vercel → project → **Logs**: the line names the kind (`store`, `app_auth`) |
+| The board has no "Updated" label | The repository is not installed, or is private (served only after S3) | GitHub App → **Install App** → configure → add the repository |
+| Deliveries show `202` but the board is old | The page was hidden (polling pauses) | Bring the tab to the front; it reloads at once |
 
 ## S2 — drift
 No new setup. Pure code and tests.

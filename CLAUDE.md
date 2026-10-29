@@ -57,4 +57,10 @@ Before saying a task is done: run the tests (`npm test`), open the page in a bro
 | Hardcode a GitHub token | Use the App, demo token server-side only |
 
 ## Current sprint
-Slice S2 — drift signals: built (`intent/s2-drift/`). Seven rule-based signals in `lib/reconcile/signals/`, health `drift` (checked before `blocked`), signals on the feature view, the size guard on light changes. Findings use the `REVIEW.md` format `[pass] Severity: text`; `[compliance]` at Important or Block raises drift. When a build PR declares a divergence, update `plan.md` after the merge so the signal clears. Next: S1b (database, GitHub App, webhooks) or S3, owner's choice.
+Slice S1b — persistence and sync: built (`intent/s1b-sync/`).
+- **Data:** Supabase holds facts snapshots, derived rows and an ETag cache (`migrations/001`, applied by the owner).
+- **Updates:** `/api/webhooks/github` refreshes on events; `/api/state` serves installed public repos; the board polls every 30 s.
+- **Health:** failing checks block a feature.
+- **Pending:** the live demo moment needs the owner's setup (`SETUP.md` "S1b").
+
+Next: S3 spec (sign-in, portfolio, settings), which builds on the same App (ADR-0004, spike S-B).

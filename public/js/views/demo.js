@@ -3,6 +3,14 @@ import { h, notice } from '../dom.js';
 import { route } from '../router.js';
 import { loadRepo } from '../api.js';
 import { renderBoard } from './board.js';
+import { startPolling } from '../poll.js';
+
+// One poller at a time: stop it when the route or the repository changes.
+let stopPolling = null;
+window.addEventListener('hashchange', () => {
+  if (stopPolling) stopPolling();
+  stopPolling = null;
+});
 
 // Accepts "owner/name" or a github.com URL; returns "owner/name" or null.
 export function normaliseRepo(input) {
@@ -53,6 +61,14 @@ export async function renderDemo(root, { query }) {
   try {
     const data = await loadRepo(current);
     result.replaceChildren(...renderBoard(data));
+    // Installed repositories stay fresh without reloading (S1b, AC-11).
+    if (data.source === 'state') {
+      if (stopPolling) stopPolling();
+      stopPolling = startPolling({
+        load: () => loadRepo(current),
+        onData: (next) => result.replaceChildren(...renderBoard(next)),
+      });
+    }
   } catch (err) {
     result.replaceChildren(notice(err.message, 'error'));
   } finally {
