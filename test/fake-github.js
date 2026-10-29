@@ -53,6 +53,10 @@ function fakeFetch(mode = 'ok', options = {}) {
 
     const u = new URL(url);
     if (u.hostname === 'api.github.com') {
+      if (u.pathname === '/search/issues') {
+        if (options.search === 'fail') return response(422, { message: 'Validation Failed' });
+        return response(200, { total_count: (options.search || []).length, items: options.search || [] });
+      }
       const p = u.pathname.replace('/repos/netskyf-cell/chain', '');
       if (p === '/commits/HEAD') return response(200, commit);
       if (p === `/git/trees/${commit.commit.tree.sha}`) return response(200, tree);
