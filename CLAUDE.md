@@ -57,4 +57,4 @@ Before saying a task is done: run the tests (`npm test`), open the page in a bro
 | Hardcode a GitHub token | Use the App, demo token server-side only |
 
 ## Current sprint
-Slice S1a — state on demand: built (`intent/s1-state/`). Board with lifecycle and health, `/#/waiting?repo=…` queue, feature chain with PR state. Next: S2 intent (drift signals, including the `[compliance]` pass against spec criteria and intent non-goals). S1b (database, App, webhooks) later.
+Slice S2 — drift signals: built (`intent/s2-drift/`). Seven rule-based signals in `lib/reconcile/signals/`, health `drift` (checked before `blocked`), signals on the feature view, the size guard on light changes. Findings use the `REVIEW.md` format `[pass] Severity: text`; `[compliance]` at Important or Block raises drift. When a build PR declares a divergence, update `plan.md` after the merge so the signal clears. Next: S1b (database, GitHub App, webhooks) or S3, owner's choice.

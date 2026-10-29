@@ -1,7 +1,8 @@
 'use strict';
 // GET /api/demo?repo=owner/name
 // Demo mode (F-04): reads a public repository and returns Chain's model:
-// S0 scan of the default branch, plus S1a state from pull requests (reconcile).
+// S0 scan of the default branch, S1a state from pull requests, and S2 drift
+// signals from reviews and artifact history (reconcile).
 //
 // The read-only GITHUB_DEMO_TOKEN lives only here, server side. It is optional in
 // local development (GitHub then allows 60 unauthenticated calls per hour) and
@@ -10,7 +11,7 @@
 // Works as a Vercel function and under dev-server.js: it only uses
 // req.method, req.url, req.headers, res.statusCode, res.setHeader and res.end.
 
-const { readRepo, readPullRequests } = require('../lib/connectors/github');
+const { readRepo, readPullRequests, readHistory } = require('../lib/connectors/github');
 const { scan } = require('../lib/scan');
 const { readConfig } = require('../lib/config');
 const { reconcile } = require('../lib/reconcile/state');
@@ -76,13 +77,19 @@ function createDemoHandler({ fetch, token, now }) {
         readConfig(source),
         readPullRequests(repo, { fetch, token }),
       ]);
+      // S2: history of the artifacts on the default branch, since the oldest
+      // merged PR in the window was opened (spec S2, decision 2).
+      const paths = scanned.features.flatMap((f) => Object.values(f.artifacts).filter((a) => a.state === 'present').map((a) => a.path));
+      const since = prs.merged.map((pr) => pr.createdAt).sort()[0] || null;
+      const history = await readHistory(repo, { paths, since }, { fetch, token });
       // reconcile() is pure: the current time is passed in, never read inside.
-      const model = reconcile({ model: scanned, prs, config, now: new Date(now()).toISOString() });
+      const model = reconcile({ model: scanned, prs, history: history.history, config, now: new Date(now()).toISOString() });
       const body = {
         repo: `${repo.owner}/${repo.name}`,
         sha: source.sha,
         truncated: source.truncated,
         partial: prs.partial,
+        historyPartial: history.partial || Boolean(prs.findingsPartial),
         model,
       };
       cache.set(key, body);
