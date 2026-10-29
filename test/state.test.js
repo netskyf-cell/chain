@@ -175,3 +175,12 @@ test('partial flag is passed through', async () => {
   const r = await run({ ...PRS, partial: true });
   assert.equal(r.partial, true);
 });
+
+test('AC-6 (second live revision): plan-creating PR outside the window, only a revision inside: all builds count', async () => {
+  // #5 (adds plan.md) has left the window; #7 only modifies the plan, after the build #6.
+  const build = PRS.merged[2];
+  const revision = { ...PRS.merged[1], number: 7, mergedAt: '2026-10-08T12:00:00Z', url: 'https://github.com/o/r/pull/7',
+    files: [{ path: 'intent/full/plan.md', status: 'modified', additions: 2, deletions: 0 }] };
+  const f = byslug(await run({ ...PRS, merged: [PRS.merged[0], build, revision] }));
+  assert.equal(f.full.lifecycle, 'shipped', 'the revision does not count as acceptance');
+});

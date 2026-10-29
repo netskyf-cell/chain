@@ -54,3 +54,5 @@ The last PR carries `Plan complete: yes`.
 ## Rule revision after the first live run (2026-10-29)
 
 A "Divergences from plan" section whose first word is `None` or `n/a` declares nothing (spec, Reading the section). Code: `lib/parse/pr-body.js` `parseDivergences()`; tests in `test/pr-body.test.js`.
+
+Second revision (same day, live): a merged divergence is also absorbed when a PR changing `plan.md` is merged after it, whatever its commit date (#40 absorbed #39 with a commit written before #39 merged).

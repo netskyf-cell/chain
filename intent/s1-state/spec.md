@@ -85,7 +85,7 @@ Revising counts as accepted.
 | `idea` | Intent proposed |
 | `no intent` | Intent absent (spec or plan exist alone) |
 
-The plan's acceptance time is the `merged_at` of the **first** merged PR in the window that changed `plan.md`. Later PRs that change `plan.md` are revisions, and do not move acceptance: a plan updated after build (for example to absorb declared divergences) must not send a built feature back to `planned`. (Revised 2026-10-29 after the first live run; it was "the most recent".)
+The plan's acceptance time is the `merged_at` of the merged PR in the window that **added** `plan.md` (file status `added`). Later PRs that change `plan.md` are revisions, and do not move acceptance: a plan updated after build (for example to absorb declared divergences) must not send a built feature back to `planned`. When the adding PR is outside the window, the plan was accepted before it, and every merged build PR counts. (Revised twice on 2026-10-29 after live runs; it was "the most recent", then "the first in the window".)
 
 ### Health (no drift until S2)
 
