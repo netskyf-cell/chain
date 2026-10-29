@@ -10,7 +10,12 @@ Order follows the build slices. Do each step only when its slice starts.
 3. Optional: copy `.env.example` to `.env` and paste a demo token (step 5). Without it, GitHub allows 60 calls per hour from your address, enough to try it.
 4. `npm run dev`, then open http://localhost:3000/#/demo and paste `netskyf-cell/chain`.
 
-**GitHub call budget (S1a).** One scan reads the commit, the tree, two pull request lists, then each PR's files (and reviews for open PRs): about 4 + 2 × open PRs + merged PRs, at most about 90. Without a token (60 calls per hour) that is one scan per hour on an active repository, so set a token in `.env` for local work. Results are cached 5 minutes.
+**GitHub call budget (S2).** One scan reads:
+- the commit and the tree, plus two pull request lists
+- for each PR, its files, reviews and inline comments
+- for each artifact on the default branch, its commit history and the PR behind each commit
+
+That is about 4 + 3 × PRs + artifacts + artifact commits. Caps: 30 merged-PR reviews, 60 comment lists, 30 histories and 30 commit lookups. Chain's own repository needs about 60 calls; the worst case is about 270. Without a token (60 calls per hour) that is at most one scan per hour, so set a token in `.env` for local work. With a token you get 5,000 calls per hour. Results are cached 5 minutes. When a cap is hit, the board says "History partial".
 
 **Put it online (Vercel)**
 5. **Demo token:** on GitHub, Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate. Repository access: *Public repositories (read-only)*. No permissions to add. Copy the token once; GitHub never shows it again.
