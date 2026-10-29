@@ -61,3 +61,16 @@ The last PR carries `Plan complete: yes`.
 - `npm test` green, `architecture-guard` run, **Divergences from plan** and **Verification** filled with evidence.
 - No migration applied and no deploy by Claude: the owner applies `001` and deploys (CLAUDE.md working method 4).
 - No secret in code, fixtures or logs. Recorded payloads are scanned for personal data before commit.
+
+## Divergences absorbed (after build and the live run)
+
+| PR | Change accepted into the plan |
+|---|---|
+| #32 | Supabase `sb_secret_` keys: `SUPABASE_SERVICE_ROLE_KEY` holds a secret key, sent in `apikey` |
+| #33 | A3 needed no connector change: the cache has the shape of `fetch` |
+| #34 | `latestReviewByUser` and `failingChecks` exported from `state.js`; `lib/http.js` added; no time budget in `api/state` (the cache makes it unnecessary) |
+| #35 | C3 (live demo) moved to after the owner's setup |
+| #36 | The log names the safe cause of App-auth and store errors (the first live call failed on a mis-pasted key) |
+| #37 | Live run: a merge took ~85 s. The webhook path trusts unmarked entries for 24 h, and the cache is preloaded in one query per prefix |
+| #39 | Live run: overlapping refreshes failed with 409 and could store older state. Migration 002 adds an advisory lock and "never older over newer" |
+| (setup) | Migrations applied through the Supabase connector with the owner's approval (001), or pasted by the owner (002). The Vercel project was created through the connector, with production protection limited to previews |

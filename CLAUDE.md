@@ -57,10 +57,8 @@ Before saying a task is done: run the tests (`npm test`), open the page in a bro
 | Hardcode a GitHub token | Use the App, demo token server-side only |
 
 ## Current sprint
-Slice S1b — persistence and sync: built (`intent/s1b-sync/`).
-- **Data:** Supabase holds facts snapshots, derived rows and an ETag cache (`migrations/001`, applied by the owner).
-- **Updates:** `/api/webhooks/github` refreshes on events; `/api/state` serves installed public repos; the board polls every 30 s.
-- **Health:** failing checks block a feature.
-- **Pending:** the live demo moment needs the owner's setup (`SETUP.md` "S1b").
+Slice S1b — persistence and sync: shipped (`intent/s1b-sync/`). Live at https://chain-nine-theta.vercel.app.
+- **How it runs:** Supabase (`migrations/001`, `002`), the read-only GitHub App "Chain (netskyf)" installed on this repository, and webhooks to `/api/webhooks/github`.
+- **Merge test:** a merge shows on the board within seconds.
 
-Next: S3 spec (sign-in, portfolio, settings), which builds on the same App (ADR-0004, spike S-B).
+Next: S3 spec (sign-in, portfolio, settings). The same App is used for sign-in; add the "Email addresses: read" permission first (ADR-0004, spike S-B).
