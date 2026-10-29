@@ -98,3 +98,20 @@ test('S1b live fix: a webhook refresh 10 min after the last one re-checks only w
   assert.equal(singleReads, 0, 'no per-URL database read');
   assert.equal(store._debug.states.get('repo-1').pull_requests.find((p) => p.number === 120).state, 'merged');
 });
+
+test('S1b live fix: overlapping refreshes never replace newer state with older (read start time wins)', async () => {
+  const store = createMemoryStore();
+  await store.upsertRepo({ gh_repo_id: 1, gh_owner: 'netskyf-cell', gh_name: 'chain', installation_id: 9, is_public: true });
+  const row = await store.getRepoByGhId(1);
+  // B starts later than A but finishes first; A must not overwrite B.
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const slowFetch = async (...args) => { await gate; return fakeFetch()(...args); };
+  const a = refresh({ repoRow: row, fetch: slowFetch, token: 't', store, now: () => NOW });
+  const b = await refresh({ repoRow: row, fetch: fakeFetch(), token: 't', store, now: () => NOW + 1000 });
+  release();
+  const aResult = await a;
+  assert.equal(b.stored, true);
+  assert.equal(aResult.stored, false, 'the older read is skipped');
+  assert.equal((await store.getRepoByGhId(1)).refreshed_at, new Date(NOW + 1000).toISOString());
+});
