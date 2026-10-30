@@ -76,6 +76,16 @@ This checks the desk result in ADR-0004 now, while the App is fresh. Chain does 
 3. In a browser, open `https://<your-project-ref>.supabase.co/auth/v1/authorize?provider=github`. The project ref is the first part of your Supabase URL. Approve on GitHub. Landing on a blank page or on localhost afterwards is expected.
 4. Supabase: **Authentication → Users**. **Pass:** one user with your GitHub email. **Fail:** an error page, or a user with no email. Write the result in the Group 0 PR or tell Claude. Either way S1b continues: a failure only changes S3's sign-in plan.
 
+Passed on 2026-10-30 (ADR-0004). The address you land on contains live tokens (`ghu_`, `ghr_`): never paste it anywhere. If it fails:
+
+| Error in the address | Fix |
+|---|---|
+| `provider is not enabled` | Supabase GitHub provider: switch on, then **Save** at the bottom of the panel |
+| `must be configured with a callback URL` | GitHub App → General → **Redirect URI** (this is the Callback URL): add the Supabase URL, **Save changes** |
+| `Callback URL must be a valid URL` | Clear the field and type the URL; pasting brought a hidden space |
+| `Unable to exchange external code` | Generate a new client secret, paste it in Supabase with no spaces, **Save** |
+| `Error getting user profile` | Account permissions → Email addresses → Read-only; then Settings → Applications → **Authorized GitHub Apps** → Revoke Chain, and sign in again |
+
 ### 4. Vercel environment variables
 On vercel.com, open the `chain` project, then **Settings → Environment Variables**. Add each value saved above for **Production** and **Preview**:
 
@@ -105,7 +115,7 @@ GitHub App settings → **Advanced → Recent Deliveries** lists one delivery pe
 No new setup. Pure code and tests.
 
 ## S3 — sign-in and multi-repo
-Sign-in with GitHub and install flow for other users. Uses the same App (ADR-0004, spike S-B), checked in S1b step 3.
+Sign-in with GitHub and install flow for other users. Uses the same App (ADR-0004, spike S-B), checked hands-on on 2026-10-30 (S1b step 3).
 
 ## Environment variables
 

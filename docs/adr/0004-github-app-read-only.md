@@ -1,6 +1,6 @@
 # ADR-0004: Access GitHub through a read-only GitHub App
 
-- **Status:** accepted (spike S-B: desk result 2026-10-29, hands-on check in slice S3)
+- **Status:** accepted (spike S-B: desk result 2026-10-29, hands-on check passed 2026-10-30)
 - **Date:** 2026-10-01
 - **Deciders:** Product owner
 - **Related:** spec §9, architecture §8. **Supersedes** the personal-access-token decision of 2026-08-31 in the first scaffold.
@@ -60,6 +60,32 @@ GitHub documentation on GitHub Apps, fine-grained permissions and installation a
 - **What is kept.** The user token (`provider_token`) is used at sign-in and then discarded. Repository reads keep using short-lived installation tokens minted server-side.
 
 **Not verified here.** Nothing was run. The first step of the S3 plan is a 30-minute hands-on check: register a test App, set it as the Supabase GitHub provider, sign in, and confirm email and `provider_token` arrive. If it fails, the fallback is a separate OAuth app that signs users in, with scopes `read:user user:email` and **no** repository scope, while the GitHub App keeps all repository access.
+
+## Spike result: S-B hands-on check (2026-10-30)
+
+**Passed. One GitHub App signs users in and reads repositories.** The fallback OAuth app is not needed.
+
+Run against the live App "Chain (netskyf)" and Supabase project `lfnsyxjguulhxtdcjaoz`, through `/auth/v1/authorize?provider=github`:
+
+| Check | Result |
+|---|---|
+| GitHub consent screen lists "Access your email addresses (read)" | yes |
+| Supabase creates a user with a verified email, provider `github` | yes |
+| The redirect carries `provider_token` with prefix `ghu_` (GitHub App user token) and `provider_refresh_token` with prefix `ghr_` | yes |
+
+Chain receives the user's **GitHub primary email**, which may differ from the email they expect. S3 shows the GitHub login, not only the email.
+
+**Setup traps met on the way** (now in SETUP.md):
+
+| Error | Cause | Fix |
+|---|---|---|
+| `Unsupported provider: provider is not enabled` | Supabase GitHub provider toggled on but not saved | Enable, then **Save** in the side panel |
+| `This GitHub App must be configured with a callback URL` | App has no callback URL (the form labels it **Redirect URI**) | Paste the Supabase callback URL |
+| `Callback URL must be a valid URL` | Hidden leading space from copy-paste | Clear the field and type the URL |
+| `Unable to exchange external code` | Wrong client secret in Supabase | Generate a new secret, paste with no spaces |
+| `Error getting user profile from external provider` | Email permission missing, or an earlier user approval made before the permission existed | Set Email addresses to Read-only; revoke the App under **Settings → Applications → Authorized GitHub Apps**; sign in again |
+
+Tokens that appear in the redirect URL are live. Revoke the authorisation if a URL is ever shared.
 
 ## Amendment: S1b (2026-10-29)
 
