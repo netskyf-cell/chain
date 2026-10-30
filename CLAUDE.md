@@ -61,4 +61,4 @@ Slice S1b — persistence and sync: shipped (`intent/s1b-sync/`). Live at https:
 - **How it runs:** Supabase (`migrations/001`, `002`), the read-only GitHub App "Chain (netskyf)" installed on this repository, and webhooks to `/api/webhooks/github`.
 - **Merge test:** a merge shows on the board within seconds.
 
-Next: S3 spec (sign-in, portfolio, settings). The same App is used for sign-in; add the "Email addresses: read" permission first (ADR-0004, spike S-B).
+Next: S3 spec (sign-in, portfolio, settings) in `intent/s3-connect/spec.md`. Spike S-B passed on 2026-10-30: the same App signs users in, with "Email addresses: read" (ADR-0004).
