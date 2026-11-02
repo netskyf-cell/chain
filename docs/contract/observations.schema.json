@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/netskyf-cell/chain/docs/contract/observations.schema.json",
+  "title": "Chain observations file",
+  "description": "What the collector agent writes and the rules engine reads (ADR-0003). Source-neutral: rules never depend on which tool an item came from.",
+  "type": "object",
+  "required": ["contract", "collectedAt", "team", "sources", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": { "const": "chain.observations/0.1" },
+    "collectedAt": { "type": "string", "format": "date-time" },
+    "team": { "type": "string", "minLength": 1, "description": "The team's own name, from chain.yml." },
+    "vocabulary": {
+      "type": "object",
+      "description": "The team's words for display, from chain.yml. Keys are roles or 'group'.",
+      "additionalProperties": { "type": "string" }
+    },
+    "sources": {
+      "type": "array",
+      "description": "Every source chain.yml lists, read or not. A source not read is shown on the board, never guessed around.",
+      "items": { "$ref": "#/$defs/source" }
+    },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["id", "system", "read"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Short id used as item id prefix, e.g. 'ado'." },
+        "system": { "enum": ["azure-devops", "confluence", "github", "ado-repos", "gitlab", "git-files", "other"] },
+        "read": { "type": "boolean" },
+        "partial": { "type": "boolean", "description": "True when a limit stopped the read early." },
+        "reason": { "type": "string", "description": "Why the source was not read or is partial, in plain words." }
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": ["id", "role", "source", "title", "url", "state", "updatedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+:.+$", "description": "<source id>:<id in that source>, unique in the file." },
+        "role": { "enum": ["intent", "spec", "plan", "change"], "description": "Outcome is derived from merged changes, never collected." },
+        "source": { "type": "string" },
+        "type": { "type": "string", "description": "The team's word for this item, e.g. 'Epic', 'User Story', 'Pull request'." },
+        "title": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "state": { "enum": ["open", "active", "done", "removed"], "description": "Normalised state. open = not started." },
+        "sourceState": { "type": "string", "description": "The state as the source names it, e.g. 'Closed', 'New'." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "doneAt": { "type": ["string", "null"], "format": "date-time" },
+        "parent": { "type": ["string", "null"], "description": "Id of the item one role up, e.g. a story's Feature." },
+        "links": {
+          "type": "array",
+          "description": "Links from this item to decisions. On a change: the plan, spec or intent items it delivers.",
+          "items": {
+            "type": "object",
+            "required": ["to", "via"],
+            "additionalProperties": false,
+            "properties": {
+              "to": { "type": "string" },
+              "via": { "enum": ["ab-mention", "native", "url", "branch", "folder", "other"] }
+            }
+          }
+        },
+        "criteria": {
+          "type": "array",
+          "description": "Acceptance criteria, on the item that holds them (usually spec or plan).",
+          "items": {
+            "type": "object",
+            "required": ["id", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "description": "AC-1, or a position-based id the collector assigns." },
+              "text": { "type": "string" },
+              "changedAt": { "type": ["string", "null"], "format": "date-time", "description": "Last time the criterion text changed, when the source keeps history." }
+            }
+          }
+        },
+        "change": { "$ref": "#/$defs/change" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "role": { "const": "change" } } },
+          "then": { "required": ["change", "links"] },
+          "else": { "not": { "required": ["change"] } }
+        }
+      ]
+    },
+    "change": {
+      "type": "object",
+      "required": ["merged", "reviews"],
+      "additionalProperties": false,
+      "properties": {
+        "merged": { "type": "boolean" },
+        "mergedAt": { "type": ["string", "null"], "format": "date-time" },
+        "authorKind": { "enum": ["human", "agent", "unknown"] },
+        "agent": { "type": ["string", "null"], "description": "Agent profile name when authorKind is agent, e.g. 'github-copilot'." },
+        "divergences": { "type": ["string", "null"], "description": "Text of the 'Divergences from plan' section; null when absent or 'None'." },
+        "reviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["at", "url", "findings"],
+            "additionalProperties": false,
+            "properties": {
+              "at": { "type": "string", "format": "date-time" },
+              "url": { "type": "string", "format": "uri" },
+              "byKind": { "enum": ["human", "agent", "unknown"] },
+              "findings": {
+                "type": "array",
+                "description": "Lines in the REVIEW.md format: [pass] Severity: text.",
+                "items": {
+                  "type": "object",
+                  "required": ["pass", "severity", "text"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "pass": { "type": "string" },
+                    "severity": { "enum": ["Block", "Important", "Nit", "Met", "Unverifiable"] },
+                    "criterion": { "type": ["string", "null"] },
+                    "text": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

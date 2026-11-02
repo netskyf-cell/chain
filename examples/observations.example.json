@@ -1,0 +1,112 @@
+{
+  "contract": "chain.observations/0.1",
+  "collectedAt": "2026-11-02T10:00:00Z",
+  "team": "Fleet Portal",
+  "vocabulary": { "group": "Epic", "intent": "Epic", "spec": "Feature", "plan": "User Story", "change": "Pull request" },
+  "sources": [
+    { "id": "ado", "system": "azure-devops", "read": true },
+    { "id": "wiki", "system": "confluence", "read": true },
+    { "id": "gh", "system": "github", "read": true },
+    { "id": "adorepos", "system": "ado-repos", "read": false, "reason": "No Azure DevOps Repos connector is configured in the agent." }
+  ],
+  "items": [
+    {
+      "id": "ado:100", "role": "intent", "source": "ado", "type": "Epic",
+      "title": "Driver self-service", "url": "https://dev.azure.com/example/fleet/_workitems/edit/100",
+      "state": "active", "sourceState": "Active",
+      "createdAt": "2026-09-01T08:00:00Z", "updatedAt": "2026-10-20T08:00:00Z", "doneAt": null, "parent": null, "links": []
+    },
+    {
+      "id": "wiki:9001", "role": "intent", "source": "wiki", "type": "PRD",
+      "title": "PRD: Driver self-service", "url": "https://example.atlassian.net/wiki/spaces/PRODUCT/pages/9001",
+      "state": "active", "createdAt": "2026-08-25T08:00:00Z", "updatedAt": "2026-09-02T08:00:00Z",
+      "parent": null, "links": [ { "to": "ado:100", "via": "url" } ]
+    },
+    {
+      "id": "ado:110", "role": "spec", "source": "ado", "type": "Feature",
+      "title": "Export trip history", "url": "https://dev.azure.com/example/fleet/_workitems/edit/110",
+      "state": "active", "sourceState": "Active",
+      "createdAt": "2026-09-05T08:00:00Z", "updatedAt": "2026-10-30T15:00:00Z", "parent": "ado:100", "links": [],
+      "criteria": [
+        { "id": "AC-1", "text": "A driver can download their trips as a CSV file.", "changedAt": "2026-09-05T08:00:00Z" },
+        { "id": "AC-2", "text": "The export can be limited to a date range.", "changedAt": "2026-09-05T08:00:00Z" },
+        { "id": "AC-3", "text": "Exports over 10,000 rows are sent by email instead.", "changedAt": "2026-10-30T15:00:00Z" }
+      ]
+    },
+    {
+      "id": "ado:111", "role": "plan", "source": "ado", "type": "User Story",
+      "title": "Export button on the trips page", "url": "https://dev.azure.com/example/fleet/_workitems/edit/111",
+      "state": "done", "sourceState": "Closed",
+      "createdAt": "2026-09-06T08:00:00Z", "updatedAt": "2026-10-21T09:00:00Z", "doneAt": "2026-10-21T09:00:00Z",
+      "parent": "ado:110", "links": []
+    },
+    {
+      "id": "ado:112", "role": "plan", "source": "ado", "type": "User Story",
+      "title": "Date range filter for the export", "url": "https://dev.azure.com/example/fleet/_workitems/edit/112",
+      "state": "done", "sourceState": "Closed",
+      "createdAt": "2026-09-06T08:00:00Z", "updatedAt": "2026-10-22T09:00:00Z", "doneAt": "2026-10-22T09:00:00Z",
+      "parent": "ado:110", "links": []
+    },
+    {
+      "id": "ado:113", "role": "plan", "source": "ado", "type": "User Story",
+      "title": "Audit log of exports", "url": "https://dev.azure.com/example/fleet/_workitems/edit/113",
+      "state": "open", "sourceState": "New",
+      "createdAt": "2026-09-06T08:00:00Z", "updatedAt": "2026-09-06T08:00:00Z", "doneAt": null,
+      "parent": "ado:110", "links": []
+    },
+    {
+      "id": "ado:200", "role": "intent", "source": "ado", "type": "Epic",
+      "title": "Maintenance planner", "url": "https://dev.azure.com/example/fleet/_workitems/edit/200",
+      "state": "active", "sourceState": "Active",
+      "createdAt": "2026-07-01T08:00:00Z", "updatedAt": "2026-08-10T08:00:00Z", "doneAt": null, "parent": null, "links": []
+    },
+    {
+      "id": "ado:210", "role": "spec", "source": "ado", "type": "Feature",
+      "title": "Service reminders", "url": "https://dev.azure.com/example/fleet/_workitems/edit/210",
+      "state": "active", "sourceState": "Active",
+      "createdAt": "2026-07-02T08:00:00Z", "updatedAt": "2026-08-10T08:00:00Z", "parent": "ado:200", "links": [],
+      "criteria": [ { "id": "AC-1", "text": "A fleet manager gets a reminder 14 days before a service is due.", "changedAt": null } ]
+    },
+    {
+      "id": "gh:41", "role": "change", "source": "gh", "type": "Pull request",
+      "title": "Add trips CSV export (AB#111)", "url": "https://github.com/example/fleet-portal/pull/41",
+      "state": "done", "createdAt": "2026-10-18T10:00:00Z", "updatedAt": "2026-10-21T08:30:00Z", "doneAt": "2026-10-21T08:30:00Z",
+      "parent": null, "links": [ { "to": "ado:111", "via": "ab-mention" } ],
+      "change": {
+        "merged": true, "mergedAt": "2026-10-21T08:30:00Z", "authorKind": "agent", "agent": "github-copilot",
+        "divergences": "Export runs in the browser, not on the server, to avoid a new endpoint.",
+        "reviews": [
+          {
+            "at": "2026-10-20T16:00:00Z", "url": "https://github.com/example/fleet-portal/pull/41#pullrequestreview-1", "byKind": "agent",
+            "findings": [
+              { "pass": "compliance", "severity": "Met", "criterion": "AC-1", "text": "CSV download from the trips page, test in trips-export.test.ts." },
+              { "pass": "compliance", "severity": "Important", "criterion": "AC-2", "text": "AC-2 not met: the export ignores the date range picker; all trips are exported. src/trips/export.ts:22" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "gh:42", "role": "change", "source": "gh", "type": "Pull request",
+      "title": "Refactor trips table pagination", "url": "https://github.com/example/fleet-portal/pull/42",
+      "state": "done", "createdAt": "2026-10-23T10:00:00Z", "updatedAt": "2026-10-24T11:00:00Z", "doneAt": "2026-10-24T11:00:00Z",
+      "parent": null, "links": [],
+      "change": { "merged": true, "mergedAt": "2026-10-24T11:00:00Z", "authorKind": "human", "agent": null, "divergences": null, "reviews": [] }
+    },
+    {
+      "id": "gh:43", "role": "change", "source": "gh", "type": "Pull request",
+      "title": "Log every export (AB#113)", "url": "https://github.com/example/fleet-portal/pull/43",
+      "state": "done", "createdAt": "2026-10-27T10:00:00Z", "updatedAt": "2026-10-28T09:00:00Z", "doneAt": "2026-10-28T09:00:00Z",
+      "parent": null, "links": [ { "to": "ado:113", "via": "ab-mention" } ],
+      "change": {
+        "merged": true, "mergedAt": "2026-10-28T09:00:00Z", "authorKind": "agent", "agent": "github-copilot", "divergences": null,
+        "reviews": [
+          {
+            "at": "2026-10-27T17:00:00Z", "url": "https://github.com/example/fleet-portal/pull/43#pullrequestreview-2", "byKind": "agent",
+            "findings": [ { "pass": "compliance", "severity": "Unverifiable", "criterion": null, "text": "No acceptance criteria on AB#113 or its Feature for audit logging." } ]
+          }
+        ]
+      }
+    }
+  ]
+}
