@@ -5,6 +5,7 @@
 //   chain validate --config [chain.yml]       check a team configuration
 //   chain compare <a.json> <b.json>           do two collector runs agree?
 //   chain rules [observations.json] [--config chain.yml] [--out file]
+//   chain board [observations.json] [--config chain.yml] [--out chain/board.html]
 // Exit codes: 0 ok, 1 invalid or different, 2 usage or file error.
 
 const fs = require('node:fs');
@@ -12,15 +13,18 @@ const path = require('node:path');
 const { validateObservations, validateConfig, readJson, readYaml } = require('../lib/validate');
 const { compareObservations } = require('../lib/compare');
 const { run, toJson } = require('../lib/engine');
+const { renderBoard } = require('../lib/board/render');
 
 const DEFAULT_OBS = path.join('chain', 'observations.json');
 const DEFAULT_CONFIG = 'chain.yml';
+const DEFAULT_BOARD = path.join('chain', 'board.html');
 
 const USAGE = `Usage:
   chain validate [observations.json]
   chain validate --config [chain.yml]
   chain compare <first.json> <second.json>
-  chain rules [observations.json] [--config chain.yml] [--out verdicts.json]`;
+  chain rules [observations.json] [--config chain.yml] [--out verdicts.json]
+  chain board [observations.json] [--config chain.yml] [--out chain/board.html]`;
 
 function parseArgs(argv) {
   const positional = [];
@@ -76,28 +80,45 @@ function compare({ positional }) {
   return same ? 0 : 1;
 }
 
-function rules({ positional, flags }) {
+// Reads and checks the observations file and chain.yml, then runs the rules.
+// Returns { code } on a problem, or { observations, result }.
+function evaluate({ positional, flags }) {
   const file = positional[0] || DEFAULT_OBS;
   const observations = readOrFail(file, readJson);
   const problems = validateObservations(observations);
-  if (problems.length) return report(file, problems);
+  if (problems.length) return { code: report(file, problems) };
 
   const configFile = typeof flags.config === 'string' ? flags.config : DEFAULT_CONFIG;
   let config = null;
   if (fs.existsSync(configFile)) {
     config = readOrFail(configFile, readYaml);
     const configProblems = validateConfig(config);
-    if (configProblems.length) return report(configFile, configProblems);
+    if (configProblems.length) return { code: report(configFile, configProblems) };
   } else {
     process.stderr.write(`No ${configFile}: using defaults (no agent patterns, so authorship is person or unknown).\n`);
   }
+  return { observations, result: run(observations, config) };
+}
 
-  const out = toJson(run(observations, config));
-  if (typeof flags.out === 'string') {
-    fs.mkdirSync(path.dirname(path.resolve(flags.out)), { recursive: true });
-    fs.writeFileSync(flags.out, out);
-    process.stdout.write(`wrote ${flags.out}\n`);
-  } else process.stdout.write(out);
+function write(file, content) {
+  fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
+  fs.writeFileSync(file, content);
+  process.stdout.write(`wrote ${file}\n`);
+}
+
+function rules(args) {
+  const { code, result } = evaluate(args);
+  if (code !== undefined) return code;
+  const out = toJson(result);
+  if (typeof args.flags.out === 'string') write(args.flags.out, out);
+  else process.stdout.write(out);
+  return 0;
+}
+
+function board(args) {
+  const { code, result, observations } = evaluate(args);
+  if (code !== undefined) return code;
+  write(typeof args.flags.out === 'string' ? args.flags.out : DEFAULT_BOARD, renderBoard(result, observations));
   return 0;
 }
 
@@ -108,6 +129,7 @@ function main(argv) {
     if (command === 'validate') return validate(args);
     if (command === 'compare') return compare(args);
     if (command === 'rules') return rules(args);
+    if (command === 'board') return board(args);
     return fail(USAGE);
   } catch (e) {
     return fail(e.message);
