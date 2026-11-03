@@ -38,6 +38,7 @@ Product owners accept Features at sprint review on trust or by hand, because not
 
 1. As a product owner preparing sprint review, I want each Feature marked ready to accept, not ready, or not checked, so that I know which ones I can accept without opening every PR.
 2. As a product owner, I want each criterion of a Feature shown with its verdict and the PR that delivers it, so that I can see exactly what is missing.
+2a. As a product owner, I want the stories attached to each Feature listed under it, each with its state, its pull requests and its own status, so that I see which story holds the Feature back.
 3. As a product owner, I want every problem to say who acts next and what to do, so that I can assign it in the meeting instead of investigating.
 4. As a product owner, I want problems in three plain groups (missing link, not met, not checked), so that I do not have to learn nine rule names.
 5. As a product owner, I want a team's declared divergence shown as information, not as a problem, so that the board does not discourage honesty.
@@ -65,6 +66,17 @@ For every item whose role is `spec` (the team's Feature), compute one status fro
 
 Each criterion also gets: its latest verdict (`met`, `not-met`, `none`), the change and review that gave it, and the evidence URL.
 
+**Stories under each Feature.** Every `plan` item whose parent is the Feature is listed with:
+
+| Field | Value |
+|---|---|
+| State | The source's word (`sourceState`) |
+| Pull requests | Merged and open changes that link to it |
+| Own criteria | When the story holds criteria itself: each with its latest verdict, as for the Feature |
+| Status | **Done and checked**: done, a merged change links to it, and every criterion it holds is `Met` (or it holds none and its merged changes have a compliance verdict). **Done, not checked**: done with a merged change, but no compliance verdict. **Not ready**: done with no merged change, a criterion it holds is not met, or it is linked from a merged change while still open. **In progress**: not done yet |
+
+A Feature is Ready to accept only when every story under it is Done and checked. The story statuses explain the Feature's status; they are not a second decision.
+
 Acceptance criteria:
 - [ ] Given a Feature whose 3 criteria each have a `Met` verdict from merged PRs and whose stories are all done with merged PRs, status is Ready to accept.
 - [ ] Given one criterion with `Important` in the latest compliance review, status is Not ready, and that criterion shows `not-met` with the review URL.
@@ -73,6 +85,8 @@ Acceptance criteria:
 - [ ] Given a Feature with no criteria, status is Not checked with the reason "no criteria written".
 - [ ] Same input, byte-identical output (ADR-0001); no clock but `collectedAt`.
 - [ ] On the demo team: "Monthly fuel report per vehicle" is Not checked (AC-3 has no verdict, one story still active); "Suggest the shortest daily route" and "Export trip history" are Not ready.
+- [ ] On the example, under "Export trip history": story 111 is Done and checked, story 112 is Not ready (done, no merged change), story 113 is Not ready (still New but a merged change links to it).
+- [ ] A story that holds its own criteria shows them with their verdicts, and its status uses them.
 
 **R2. Next action and owner per problem** (rules engine)
 
@@ -110,12 +124,14 @@ Acceptance criteria:
 **R4. Acceptance view leads the board** (board)
 
 - The page opens on the acceptance summary: "{n} of {m} {spec plural} ready to accept", then one row per Feature: status, criteria met out of total, next action count.
-- Each Feature expands to its criteria list: criterion text, verdict, delivering PR, evidence link.
+- Each Feature expands to two lists: its **criteria** (text, verdict, delivering PR, evidence link) and its **stories** (title, state, pull requests, status in words, and their own criteria when they have some).
+- The Feature row shows a one-line story summary, e.g. "3 stories: 1 done and checked, 2 not ready".
 - The chain view stays below, per Epic, as the "why".
 
 Acceptance criteria:
 - [ ] The first heading of the page states how many Features are ready to accept.
 - [ ] Every Feature in the file appears once with one of the three statuses, written in words, not colour alone.
+- [ ] Every story appears under its Feature with its status in words; a story with no Feature appears in a "Stories with no Feature" row.
 - [ ] The "20 signals" style count is gone from the headline.
 
 **R5. Calmer nodes** (board)
@@ -176,11 +192,14 @@ Acceptance criteria:
 | Lagging | "Not met" verdicts found after merge | Down 50% after 4 sprints, against the first collection | Board, criteria not met on merged PRs |
 | Lagging | Noise in findings | Under 30% | Benchmark sheet, `docs/benchmark.md` |
 
+## Decided
+
+- 2026-11-03, owner: product owners accept the **Feature** and want to see its **stories** under it, each with its own status (R1, R4).
+
 ## Open questions
 
 | Question | Who answers | Blocking? |
 |---|---|---|
-| Does the product owner accept per Feature or per story in this team? If per story, R1 moves to the `plan` role | Product owner | Yes, before R1 |
 | Must "Ready to accept" also require a review by a person? | Product owner | No; default: not required, shown beside the status |
 | Are iterations readable through the Azure DevOps connector at the team's setup (for R7)? | Engineering | No (P1) |
 | Should developers' pre-flight count be shared with the team, or stay with each developer? Default: stays with them | Product owner, developers | No |
