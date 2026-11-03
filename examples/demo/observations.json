@@ -1,0 +1,972 @@
+{
+  "contract": "chain.observations/0.2",
+  "collectedAt": "2026-11-02T10:00:00Z",
+  "team": "Fleet Portal",
+  "vocabulary": {
+    "group": "Epic",
+    "intent": "Epic",
+    "spec": "Feature",
+    "plan": "User Story",
+    "change": "Pull request"
+  },
+  "sources": [
+    {
+      "id": "ado",
+      "system": "azure-devops",
+      "connector": "ado-remote",
+      "read": true
+    },
+    {
+      "id": "wiki",
+      "system": "confluence",
+      "connector": "rovo",
+      "read": true
+    },
+    {
+      "id": "gh",
+      "system": "github",
+      "connector": "github",
+      "read": true
+    },
+    {
+      "id": "adorepos",
+      "system": "ado-repos",
+      "read": true,
+      "connector": "ado-remote"
+    }
+  ],
+  "items": [
+    {
+      "id": "wiki:9001",
+      "role": "intent",
+      "source": "wiki",
+      "type": "PRD",
+      "title": "PRD: Driver self-service",
+      "url": "https://example.atlassian.net/wiki/spaces/PRODUCT/pages/9001",
+      "state": "active",
+      "createdAt": "2026-08-25T08:00:00Z",
+      "updatedAt": "2026-09-02T08:00:00Z",
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:100",
+          "via": "url"
+        }
+      ]
+    },
+    {
+      "id": "ado:100",
+      "role": "intent",
+      "source": "ado",
+      "type": "Epic",
+      "title": "Driver self-service",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/100",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-09-01T08:00:00Z",
+      "updatedAt": "2026-10-20T08:00:00Z",
+      "doneAt": null,
+      "parent": null,
+      "links": [
+        {
+          "to": "wiki:9001",
+          "via": "url"
+        }
+      ]
+    },
+    {
+      "id": "ado:110",
+      "role": "spec",
+      "source": "ado",
+      "type": "Feature",
+      "title": "Export trip history",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/110",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-09-05T08:00:00Z",
+      "updatedAt": "2026-10-30T15:00:00Z",
+      "parent": "ado:100",
+      "links": [],
+      "criteria": [
+        {
+          "id": "AC-1",
+          "idSource": "text",
+          "text": "AC-1 A driver can download their trips as a CSV file.",
+          "changedAt": "2026-09-05T08:00:00Z"
+        },
+        {
+          "id": "AC-2",
+          "idSource": "text",
+          "text": "AC-2 The export can be limited to a date range.",
+          "changedAt": "2026-09-05T08:00:00Z"
+        },
+        {
+          "id": "AC-3",
+          "idSource": "text",
+          "text": "AC-3 Exports over 10,000 rows are sent by email instead.",
+          "changedAt": "2026-10-30T15:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ado:111",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Export button on the trips page",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/111",
+      "state": "done",
+      "sourceState": "Closed",
+      "createdAt": "2026-09-06T08:00:00Z",
+      "updatedAt": "2026-10-21T09:00:00Z",
+      "doneAt": "2026-10-21T09:00:00Z",
+      "parent": "ado:110",
+      "links": []
+    },
+    {
+      "id": "ado:112",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Date range filter for the export",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/112",
+      "state": "done",
+      "sourceState": "Resolved",
+      "createdAt": "2026-09-06T08:00:00Z",
+      "updatedAt": "2026-10-22T09:00:00Z",
+      "doneAt": "2026-10-22T09:00:00Z",
+      "parent": "ado:110",
+      "links": []
+    },
+    {
+      "id": "ado:113",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Audit log of exports",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/113",
+      "state": "open",
+      "sourceState": "New",
+      "createdAt": "2026-09-06T08:00:00Z",
+      "updatedAt": "2026-09-06T08:00:00Z",
+      "doneAt": null,
+      "parent": "ado:110",
+      "links": []
+    },
+    {
+      "id": "ado:200",
+      "role": "intent",
+      "source": "ado",
+      "type": "Epic",
+      "title": "Maintenance planner",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/200",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-07-01T08:00:00Z",
+      "updatedAt": "2026-08-10T08:00:00Z",
+      "doneAt": null,
+      "parent": null,
+      "links": []
+    },
+    {
+      "id": "ado:210",
+      "role": "spec",
+      "source": "ado",
+      "type": "Feature",
+      "title": "Service reminders",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/210",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-07-02T08:00:00Z",
+      "updatedAt": "2026-08-10T08:00:00Z",
+      "parent": "ado:200",
+      "links": [],
+      "criteria": [
+        {
+          "id": "AC-1",
+          "idSource": "position",
+          "text": "A fleet manager gets a reminder 14 days before a service is due.",
+          "changedAt": null
+        }
+      ]
+    },
+    {
+      "id": "gh:41",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "Add trips CSV export (AB#111)",
+      "url": "https://github.com/example/fleet-portal/pull/41",
+      "state": "done",
+      "createdAt": "2026-10-18T10:00:00Z",
+      "updatedAt": "2026-10-21T08:30:00Z",
+      "doneAt": "2026-10-21T08:30:00Z",
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:111",
+          "via": "ab-mention"
+        }
+      ],
+      "change": {
+        "merged": true,
+        "mergedAt": "2026-10-21T08:30:00Z",
+        "repository": "example/fleet-portal",
+        "branch": "claude/trips-export",
+        "labels": [],
+        "author": {
+          "login": "sam",
+          "name": "Sam",
+          "isBot": false
+        },
+        "body": "Adds a CSV export to the trips page. AB#111\n\n## Divergences from plan\n\nExport runs in the browser, not on the server, to avoid a new endpoint.\n",
+        "commits": [
+          {
+            "sha": "a1f3c9e",
+            "at": "2026-10-18T10:00:00Z",
+            "author": {
+              "login": "sam",
+              "name": "Sam",
+              "isBot": false
+            },
+            "trailers": [
+              "Co-Authored-By: Claude <noreply@anthropic.com>"
+            ]
+          },
+          {
+            "sha": "b72d014",
+            "at": "2026-10-19T14:00:00Z",
+            "author": {
+              "login": "sam",
+              "name": "Sam",
+              "isBot": false
+            },
+            "trailers": []
+          }
+        ],
+        "reviews": [
+          {
+            "at": "2026-10-20T16:00:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/41#issuecomment-1",
+            "author": {
+              "login": "sam",
+              "name": "Sam",
+              "isBot": false
+            },
+            "state": null,
+            "body": "[compliance] Met: AC-1 CSV download from the trips page, test in trips-export.test.ts.\n[compliance] Important: AC-2 not met: the export ignores the date range picker; all trips are exported. (src/trips/export.ts:22)"
+          },
+          {
+            "at": "2026-10-21T08:00:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/41#pullrequestreview-2",
+            "author": {
+              "login": "lee",
+              "name": "Lee",
+              "isBot": false
+            },
+            "state": "approved",
+            "body": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "gh:43",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "Log every export (AB#113)",
+      "url": "https://github.com/example/fleet-portal/pull/43",
+      "state": "done",
+      "createdAt": "2026-10-30T10:00:00Z",
+      "updatedAt": "2026-10-31T09:00:00Z",
+      "doneAt": "2026-10-31T09:00:00Z",
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:113",
+          "via": "ab-mention"
+        }
+      ],
+      "change": {
+        "merged": true,
+        "mergedAt": "2026-10-31T09:00:00Z",
+        "repository": "example/fleet-portal",
+        "branch": "copilot/log-exports",
+        "labels": [
+          "ai-generated"
+        ],
+        "author": {
+          "login": "Copilot",
+          "name": "Copilot",
+          "isBot": true
+        },
+        "body": "Logs each export with user and time. AB#113",
+        "commits": [
+          {
+            "sha": "d4410bf",
+            "at": "2026-10-30T10:00:00Z",
+            "author": {
+              "login": "Copilot",
+              "name": "Copilot",
+              "isBot": true
+            },
+            "trailers": [
+              "Co-Authored-By: dana <dana@example.com>"
+            ]
+          }
+        ],
+        "reviews": [
+          {
+            "at": "2026-10-30T17:00:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/43#issuecomment-3",
+            "author": {
+              "login": "dana",
+              "name": "Dana",
+              "isBot": false
+            },
+            "state": null,
+            "body": "[compliance] Unverifiable: no acceptance criteria on AB#113 or its Feature for audit logging."
+          }
+        ]
+      }
+    },
+    {
+      "id": "ado:211",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Reminder settings per vehicle",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/211",
+      "state": "open",
+      "sourceState": "New",
+      "createdAt": "2026-07-03T08:00:00Z",
+      "updatedAt": "2026-07-03T08:00:00Z",
+      "doneAt": null,
+      "parent": "ado:210",
+      "links": []
+    },
+    {
+      "id": "ado:300",
+      "role": "intent",
+      "source": "ado",
+      "type": "Epic",
+      "title": "Fuel consumption reports",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/300",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-08-20T08:00:00Z",
+      "updatedAt": "2026-10-29T08:00:00Z",
+      "doneAt": null,
+      "parent": null,
+      "links": []
+    },
+    {
+      "id": "ado:310",
+      "role": "spec",
+      "source": "ado",
+      "type": "Feature",
+      "title": "Monthly fuel report per vehicle",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/310",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-08-21T08:00:00Z",
+      "updatedAt": "2026-09-01T08:00:00Z",
+      "doneAt": null,
+      "parent": "ado:300",
+      "links": [],
+      "criteria": [
+        {
+          "id": "AC-1",
+          "idSource": "text",
+          "text": "AC-1 A fleet manager sees litres per 100 km per vehicle for the last month.",
+          "changedAt": "2026-08-21T08:00:00Z"
+        },
+        {
+          "id": "AC-2",
+          "idSource": "text",
+          "text": "AC-2 Vehicles above the fleet average by 15% are highlighted.",
+          "changedAt": "2026-08-21T08:00:00Z"
+        },
+        {
+          "id": "AC-3",
+          "idSource": "text",
+          "text": "AC-3 The report can be downloaded as PDF.",
+          "changedAt": "2026-08-21T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ado:311",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Fuel per vehicle table",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/311",
+      "state": "done",
+      "sourceState": "Closed",
+      "createdAt": "2026-08-22T08:00:00Z",
+      "updatedAt": "2026-10-08T09:00:00Z",
+      "doneAt": "2026-10-08T09:00:00Z",
+      "parent": "ado:310",
+      "links": []
+    },
+    {
+      "id": "ado:312",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Highlight vehicles above average",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/312",
+      "state": "done",
+      "sourceState": "Closed",
+      "createdAt": "2026-08-22T08:00:00Z",
+      "updatedAt": "2026-10-20T09:00:00Z",
+      "doneAt": "2026-10-20T09:00:00Z",
+      "parent": "ado:310",
+      "links": []
+    },
+    {
+      "id": "ado:313",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "PDF download of the report",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/313",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-08-22T08:00:00Z",
+      "updatedAt": "2026-10-29T08:00:00Z",
+      "doneAt": null,
+      "parent": "ado:310",
+      "links": []
+    },
+    {
+      "id": "wiki:9100",
+      "role": "intent",
+      "source": "wiki",
+      "type": "PRD",
+      "title": "PRD: Route optimiser",
+      "url": "https://example.atlassian.net/wiki/spaces/PRODUCT/pages/9100",
+      "state": "active",
+      "createdAt": "2026-09-02T08:00:00Z",
+      "updatedAt": "2026-09-15T08:00:00Z",
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:400",
+          "via": "url"
+        }
+      ]
+    },
+    {
+      "id": "ado:400",
+      "role": "intent",
+      "source": "ado",
+      "type": "Epic",
+      "title": "Route optimiser",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/400",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-09-10T08:00:00Z",
+      "updatedAt": "2026-10-30T08:00:00Z",
+      "doneAt": null,
+      "parent": null,
+      "links": [
+        {
+          "to": "wiki:9100",
+          "via": "url"
+        }
+      ]
+    },
+    {
+      "id": "ado:410",
+      "role": "spec",
+      "source": "ado",
+      "type": "Feature",
+      "title": "Suggest the shortest daily route",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/410",
+      "state": "active",
+      "sourceState": "Active",
+      "createdAt": "2026-09-11T08:00:00Z",
+      "updatedAt": "2026-10-29T14:00:00Z",
+      "doneAt": null,
+      "parent": "ado:400",
+      "links": [],
+      "criteria": [
+        {
+          "id": "AC-1",
+          "idSource": "text",
+          "text": "AC-1 The route visits every stop of the day and avoids roads closed to trucks over 26 t.",
+          "changedAt": "2026-09-11T08:00:00Z"
+        },
+        {
+          "id": "AC-2",
+          "idSource": "text",
+          "text": "AC-2 The driver can lock a stop to a time window.",
+          "changedAt": "2026-10-29T14:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "ado:411",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Compute the route for a day",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/411",
+      "state": "done",
+      "sourceState": "Closed",
+      "createdAt": "2026-09-12T08:00:00Z",
+      "updatedAt": "2026-10-25T10:00:00Z",
+      "doneAt": "2026-10-25T10:00:00Z",
+      "parent": "ado:410",
+      "links": []
+    },
+    {
+      "id": "ado:412",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Show the route on the map",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/412",
+      "state": "done",
+      "sourceState": "Closed",
+      "createdAt": "2026-09-12T08:00:00Z",
+      "updatedAt": "2026-10-27T10:00:00Z",
+      "doneAt": "2026-10-27T10:00:00Z",
+      "parent": "ado:410",
+      "links": []
+    },
+    {
+      "id": "ado:413",
+      "role": "plan",
+      "source": "ado",
+      "type": "User Story",
+      "title": "Time windows for stops",
+      "url": "https://dev.azure.com/example/fleet/_workitems/edit/413",
+      "state": "open",
+      "sourceState": "New",
+      "createdAt": "2026-09-12T08:00:00Z",
+      "updatedAt": "2026-09-12T08:00:00Z",
+      "doneAt": null,
+      "parent": "ado:410",
+      "links": []
+    },
+    {
+      "id": "gh:51",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "Fuel per vehicle table (AB#311)",
+      "url": "https://github.com/example/fleet-portal/pull/51",
+      "state": "done",
+      "createdAt": "2026-10-06T09:00:00Z",
+      "updatedAt": "2026-10-08T08:30:00Z",
+      "doneAt": "2026-10-08T08:30:00Z",
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:311",
+          "via": "ab-mention"
+        }
+      ],
+      "change": {
+        "merged": true,
+        "mergedAt": "2026-10-08T08:30:00Z",
+        "repository": "example/fleet-portal",
+        "branch": "fuel-table",
+        "labels": [],
+        "author": {
+          "login": "lee",
+          "name": "Lee",
+          "isBot": false
+        },
+        "body": "Table of litres per 100 km per vehicle. AB#311\n\n## Divergences from plan\n\nNone.",
+        "commits": [
+          {
+            "sha": "e11a201",
+            "at": "2026-10-06T09:00:00Z",
+            "author": {
+              "login": "lee",
+              "name": "Lee",
+              "isBot": false
+            },
+            "trailers": []
+          },
+          {
+            "sha": "e11a202",
+            "at": "2026-10-07T15:00:00Z",
+            "author": {
+              "login": "lee",
+              "name": "Lee",
+              "isBot": false
+            },
+            "trailers": [
+              "Co-Authored-By: Claude <noreply@anthropic.com>"
+            ]
+          }
+        ],
+        "reviews": [
+          {
+            "at": "2026-10-07T17:00:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/51#issuecomment-1",
+            "author": {
+              "login": "sam",
+              "name": "Sam",
+              "isBot": false
+            },
+            "state": null,
+            "body": "[compliance] Met: AC-1 litres per 100 km per vehicle for the last month, fuel-table.test.ts (src/fuel/table.ts:30)"
+          },
+          {
+            "at": "2026-10-08T08:00:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/51#pullrequestreview-2",
+            "author": {
+              "login": "dana",
+              "name": "Dana",
+              "isBot": false
+            },
+            "state": "approved",
+            "body": "Looks good."
+          }
+        ]
+      }
+    },
+    {
+      "id": "gh:52",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "Highlight vehicles above fleet average (AB#312)",
+      "url": "https://github.com/example/fleet-portal/pull/52",
+      "state": "done",
+      "createdAt": "2026-10-17T09:00:00Z",
+      "updatedAt": "2026-10-20T08:30:00Z",
+      "doneAt": "2026-10-20T08:30:00Z",
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:312",
+          "via": "ab-mention"
+        }
+      ],
+      "change": {
+        "merged": true,
+        "mergedAt": "2026-10-20T08:30:00Z",
+        "repository": "example/fleet-portal",
+        "branch": "copilot/highlight-above-average",
+        "labels": [],
+        "author": {
+          "login": "Copilot",
+          "name": "Copilot",
+          "isBot": true
+        },
+        "body": "Highlights vehicles 15% above the fleet average. AB#312",
+        "commits": [
+          {
+            "sha": "f22b301",
+            "at": "2026-10-17T09:00:00Z",
+            "author": {
+              "login": "Copilot",
+              "name": "Copilot",
+              "isBot": true
+            },
+            "trailers": [
+              "Co-Authored-By: lee <lee@example.com>"
+            ]
+          }
+        ],
+        "reviews": [
+          {
+            "at": "2026-10-18T10:00:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/52#issuecomment-3",
+            "author": {
+              "login": "lee",
+              "name": "Lee",
+              "isBot": false
+            },
+            "state": null,
+            "body": "[compliance] Met: AC-2 vehicles 15% above average are highlighted, highlight.test.ts (src/fuel/highlight.ts:14)"
+          },
+          {
+            "at": "2026-10-19T16:00:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/52#pullrequestreview-4",
+            "author": {
+              "login": "dana",
+              "name": "Dana",
+              "isBot": false
+            },
+            "state": "approved",
+            "body": "Checked on staging."
+          }
+        ]
+      }
+    },
+    {
+      "id": "gh:53",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "PDF download of the fuel report (AB#313)",
+      "url": "https://github.com/example/fleet-portal/pull/53",
+      "state": "active",
+      "createdAt": "2026-10-29T08:00:00Z",
+      "updatedAt": "2026-10-29T08:00:00Z",
+      "doneAt": null,
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:313",
+          "via": "ab-mention"
+        }
+      ],
+      "change": {
+        "merged": false,
+        "mergedAt": null,
+        "repository": "example/fleet-portal",
+        "branch": "copilot/fuel-pdf",
+        "labels": [],
+        "author": {
+          "login": "Copilot",
+          "name": "Copilot",
+          "isBot": true
+        },
+        "body": "Draft. AB#313",
+        "commits": [
+          {
+            "sha": "a33c401",
+            "at": "2026-10-29T08:00:00Z",
+            "author": {
+              "login": "Copilot",
+              "name": "Copilot",
+              "isBot": true
+            },
+            "trailers": []
+          }
+        ],
+        "reviews": []
+      }
+    },
+    {
+      "id": "gh:61",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "Daily route computation (AB#411)",
+      "url": "https://github.com/example/fleet-portal/pull/61",
+      "state": "done",
+      "createdAt": "2026-10-22T09:00:00Z",
+      "updatedAt": "2026-10-25T09:30:00Z",
+      "doneAt": "2026-10-25T09:30:00Z",
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:411",
+          "via": "ab-mention"
+        }
+      ],
+      "change": {
+        "merged": true,
+        "mergedAt": "2026-10-25T09:30:00Z",
+        "repository": "example/fleet-portal",
+        "branch": "copilot/daily-route",
+        "labels": [
+          "ai-generated"
+        ],
+        "author": {
+          "login": "Copilot",
+          "name": "Copilot",
+          "isBot": true
+        },
+        "body": "Computes the shortest route through the day's stops. AB#411",
+        "commits": [
+          {
+            "sha": "b44d501",
+            "at": "2026-10-22T09:00:00Z",
+            "author": {
+              "login": "Copilot",
+              "name": "Copilot",
+              "isBot": true
+            },
+            "trailers": []
+          },
+          {
+            "sha": "b44d502",
+            "at": "2026-10-23T11:00:00Z",
+            "author": {
+              "login": "Copilot",
+              "name": "Copilot",
+              "isBot": true
+            },
+            "trailers": []
+          }
+        ],
+        "reviews": [
+          {
+            "at": "2026-10-24T15:00:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/61#issuecomment-5",
+            "author": {
+              "login": "sam",
+              "name": "Sam",
+              "isBot": false
+            },
+            "state": null,
+            "body": "[compliance] Important: AC-1 not met: the route ignores the 26 t weight limit; closed roads are only read for cars (src/route/graph.ts:48)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gh:62",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "Lock stops to time windows (AB#413)",
+      "url": "https://github.com/example/fleet-portal/pull/62",
+      "state": "done",
+      "createdAt": "2026-10-28T09:00:00Z",
+      "updatedAt": "2026-10-30T16:00:00Z",
+      "doneAt": "2026-10-30T16:00:00Z",
+      "parent": null,
+      "links": [
+        {
+          "to": "ado:413",
+          "via": "ab-mention"
+        }
+      ],
+      "change": {
+        "merged": true,
+        "mergedAt": "2026-10-30T16:00:00Z",
+        "repository": "example/fleet-portal",
+        "branch": "claude/time-windows",
+        "labels": [],
+        "author": {
+          "login": "sam",
+          "name": "Sam",
+          "isBot": false
+        },
+        "body": "Adds time windows to stops. AB#413\n\n## Divergences from plan\n\nWindows are stored per stop, not per customer, to ship before the pilot.",
+        "commits": [
+          {
+            "sha": "c55e601",
+            "at": "2026-10-28T09:00:00Z",
+            "author": {
+              "login": "sam",
+              "name": "Sam",
+              "isBot": false
+            },
+            "trailers": [
+              "Co-Authored-By: Claude <noreply@anthropic.com>"
+            ]
+          },
+          {
+            "sha": "c55e602",
+            "at": "2026-10-29T10:00:00Z",
+            "author": {
+              "login": "sam",
+              "name": "Sam",
+              "isBot": false
+            },
+            "trailers": [
+              "Co-Authored-By: Claude <noreply@anthropic.com>"
+            ]
+          }
+        ],
+        "reviews": []
+      }
+    },
+    {
+      "id": "gh:42",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "Refactor trips table pagination",
+      "url": "https://github.com/example/fleet-portal/pull/42",
+      "state": "done",
+      "createdAt": "2026-10-23T10:00:00Z",
+      "updatedAt": "2026-10-24T11:00:00Z",
+      "doneAt": "2026-10-24T11:00:00Z",
+      "parent": null,
+      "links": [],
+      "change": {
+        "merged": true,
+        "mergedAt": "2026-10-24T11:00:00Z",
+        "repository": "example/fleet-portal",
+        "branch": "pagination-refactor",
+        "labels": [],
+        "author": {
+          "login": "lee",
+          "name": "Lee",
+          "isBot": false
+        },
+        "body": "Smaller pages for the trips table.",
+        "commits": [
+          {
+            "sha": "c90e7a2",
+            "at": "2026-10-23T10:00:00Z",
+            "author": {
+              "login": "lee",
+              "name": "Lee",
+              "isBot": false
+            },
+            "trailers": []
+          }
+        ],
+        "reviews": []
+      }
+    },
+    {
+      "id": "gh:63",
+      "role": "change",
+      "source": "gh",
+      "type": "Pull request",
+      "title": "Bump map library to 4.2",
+      "url": "https://github.com/example/fleet-portal/pull/63",
+      "state": "done",
+      "createdAt": "2026-10-31T06:00:00Z",
+      "updatedAt": "2026-10-31T09:00:00Z",
+      "doneAt": "2026-10-31T09:00:00Z",
+      "parent": null,
+      "links": [],
+      "change": {
+        "merged": true,
+        "mergedAt": "2026-10-31T09:00:00Z",
+        "repository": "example/fleet-portal",
+        "branch": "dependabot/npm/maplib-4.2",
+        "labels": [],
+        "author": {
+          "login": "dependabot",
+          "name": "Dependabot",
+          "isBot": true
+        },
+        "body": "Bumps maplib from 4.1 to 4.2.",
+        "commits": [
+          {
+            "sha": "d66f701",
+            "at": "2026-10-31T06:00:00Z",
+            "author": {
+              "login": "dependabot",
+              "name": "Dependabot",
+              "isBot": true
+            },
+            "trailers": []
+          }
+        ],
+        "reviews": [
+          {
+            "at": "2026-10-31T08:50:00Z",
+            "url": "https://github.com/example/fleet-portal/pull/63#pullrequestreview-6",
+            "author": {
+              "login": "lee",
+              "name": "Lee",
+              "isBot": false
+            },
+            "state": "approved",
+            "body": ""
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,27 +1,61 @@
-/* Design tokens from chain-v1 (public/css/tokens.css). Dark is the default.
-   Status never relies on colour alone: every state also has text. */
+/* Board tokens. "Steel and signal": a cool workshop grey, steel-blue links,
+   and three signal colours that always come with a word, never alone.
+   System fonts only, so the page works offline on any machine:
+   Bahnschrift (Windows) / DIN for display, Segoe UI for text, Cascadia for ids. */
 :root {
-  --bg: #0f1115;
-  --surface: #171a21;
-  --surface-2: #1e222b;
-  --border: #2b303b;
-  --text: #e6e8ec;
-  --text-muted: #9aa1ad;
-  --accent: #7aa2ff;
-  --present: #5cc58a;
-  --absent: #9aa1ad;
-  --proposed: #e0b354;
-  --revising: #7aa2ff;
-  --blocked: #ff7a7a;
-  --danger: #ff7a7a;
+  --bg: #eef1f4;
+  --panel: #ffffff;
+  --panel-2: #f6f8fa;
+  --ink: #16222c;
+  --muted: #5b6b78;
+  --rule: #cfd7de;
+  --steel: #2c5a78;
+  --steel-soft: #dce7ef;
+  --break: #c33b2f;
+  --break-soft: #fbe9e7;
+  --warn: #9a6512;
+  --warn-soft: #fbf1df;
+  --ok: #2f7a55;
+  --ok-soft: #e3f2ea;
+  --agent: #5b48a8;
+  --agent-soft: #ece8f8;
+  --person: #2c5a78;
+  --unknown: #8a97a3;
 
-  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: Bahnschrift, "DIN Alternate", "DIN Next", "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-ui: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-mono: "Cascadia Mono", "Cascadia Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
-  --space-6: 24px;
-  --radius: 6px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --radius: 10px;
+  --link: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f151b;
+    --panel: #17202a;
+    --panel-2: #1c2733;
+    --ink: #e4eaf0;
+    --muted: #93a3b1;
+    --rule: #2c3a47;
+    --steel: #7fb0d4;
+    --steel-soft: #1f3445;
+    --break: #ff7a6b;
+    --break-soft: #3a1e1c;
+    --warn: #e7b25a;
+    --warn-soft: #3a2e17;
+    --ok: #6fcf9e;
+    --ok-soft: #173327;
+    --agent: #a998ef;
+    --agent-soft: #2a2546;
+    --person: #7fb0d4;
+    --unknown: #7c8a96;
+  }
 }
