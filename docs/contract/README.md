@@ -54,7 +54,14 @@ Each rule reads only fields above. The example file contains one case of each.
 | Declared divergence | content | The PR description has a non-empty `Divergences from plan` section other than "None" | `gh:41` |
 | Agent change, no person reviewed | content | A merged change is agent or mixed, and no person's review is on it | `gh:43` |
 
-A rule that needs a source marked `read: false` raises nothing and reports "not checked" instead.
+When a source is not read, or only partly read:
+
+- rules that need **every** item of a role (Done without proof and Stalled intent need every change; Change without a mandate needs every decision; Out of order needs every plan item) raise nothing and report "not checked";
+- rules that judge one change at a time still run on what was read, and list the unread source as a caveat.
+
+## What the rules engine writes
+
+`chain rules` writes `chain.verdicts/0.1`: the team, `collectedAt`, the sources and whether each was read, `signals` (rule, items, message, evidence with URLs), `notChecked` (rule, sources, whether it was skipped), and `facts` (per decision, per change, team totals). It is internal to Chain: the board reads it; no other tool should.
 
 v1's history rules (intent rework, spec rework, plan revised, change outside a PR) need file history. They return for teams whose decisions live in repository files (`git-files` source).
 
