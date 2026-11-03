@@ -45,3 +45,10 @@ The collector writes **one observations file** in a fixed, versioned format ([co
 ## Evidence
 
 Product vision, 2026-11-02: the first user's decisions are in Azure DevOps and Confluence, code may be on several hosts, and team vocabulary varies.
+
+## Changes
+
+| Date | Contract | Change |
+|---|---|---|
+| 2026-11-02 | 0.1 | First draft |
+| 2026-11-03 | 0.2 | The collector copies raw text and accounts (PR description, review bodies, commits with trailers); rules derive findings, divergences and authorship. Agent patterns move to `chain.yml`. See the [contract README](../contract/README.md#changes-from-01) and spec [`m1-agent-pack`](../../intent/m1-agent-pack/spec.md) D2, plan P1. |

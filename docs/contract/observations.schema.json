@@ -2,13 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/netskyf-cell/chain/docs/contract/observations.schema.json",
   "title": "Chain observations file",
-  "description": "What the collector agent writes and the rules engine reads (ADR-0003). Source-neutral: rules never depend on which tool an item came from.",
+  "description": "What the collector agent writes and the rules engine reads (ADR-0003). Source-neutral: rules never depend on which tool an item came from. The collector copies; rules classify and parse (ADR-0001).",
   "type": "object",
   "required": ["contract", "collectedAt", "team", "sources", "items"],
   "additionalProperties": false,
   "properties": {
-    "contract": { "const": "chain.observations/0.1" },
-    "collectedAt": { "type": "string", "format": "date-time" },
+    "contract": { "const": "chain.observations/0.2" },
+    "collectedAt": { "type": "string", "format": "date-time", "description": "When the collection ended. The only clock the rules read." },
     "team": { "type": "string", "minLength": 1, "description": "The team's own name, from chain.yml." },
     "vocabulary": {
       "type": "object",
@@ -33,9 +33,21 @@
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "description": "Short id used as item id prefix, e.g. 'ado'." },
         "system": { "enum": ["azure-devops", "confluence", "github", "ado-repos", "gitlab", "git-files", "other"] },
+        "connector": { "type": "string", "description": "Which connector read it, e.g. 'ado-remote', 'ado-local', 'rovo', 'github'. Shown on the board; rules never read it." },
         "read": { "type": "boolean" },
         "partial": { "type": "boolean", "description": "True when a limit stopped the read early." },
         "reason": { "type": "string", "description": "Why the source was not read or is partial, in plain words." }
+      }
+    },
+    "person": {
+      "type": "object",
+      "description": "An account as the source shows it. Rules decide whether it is a person or an agent, using chain.yml patterns.",
+      "required": ["login"],
+      "additionalProperties": false,
+      "properties": {
+        "login": { "type": "string", "description": "Account name or unique name in the source." },
+        "name": { "type": ["string", "null"], "description": "Display name, as shown." },
+        "isBot": { "type": ["boolean", "null"], "description": "The source's own bot flag, when it has one; null when it does not say." }
       }
     },
     "item": {
@@ -45,19 +57,19 @@
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9-]+:.+$", "description": "<source id>:<id in that source>, unique in the file." },
         "role": { "enum": ["intent", "spec", "plan", "change"], "description": "Outcome is derived from merged changes, never collected." },
-        "source": { "type": "string" },
+        "source": { "type": "string", "description": "Id of an entry in sources." },
         "type": { "type": "string", "description": "The team's word for this item, e.g. 'Epic', 'User Story', 'Pull request'." },
         "title": { "type": "string" },
         "url": { "type": "string", "format": "uri" },
         "state": { "enum": ["open", "active", "done", "removed"], "description": "Normalised state. open = not started." },
         "sourceState": { "type": "string", "description": "The state as the source names it, e.g. 'Closed', 'New'." },
-        "createdAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Used for the 'started in' fact." },
         "updatedAt": { "type": "string", "format": "date-time" },
         "doneAt": { "type": ["string", "null"], "format": "date-time" },
         "parent": { "type": ["string", "null"], "description": "Id of the item one role up, e.g. a story's Feature." },
         "links": {
           "type": "array",
-          "description": "Links from this item to decisions. On a change: the plan, spec or intent items it delivers.",
+          "description": "Links from this item to decisions. On a change: the plan, spec or intent items it delivers. Across tools: a page linked to a work item.",
           "items": {
             "type": "object",
             "required": ["to", "via"],
@@ -76,7 +88,8 @@
             "required": ["id", "text"],
             "additionalProperties": false,
             "properties": {
-              "id": { "type": "string", "description": "AC-1, or a position-based id the collector assigns." },
+              "id": { "type": "string", "description": "AC-1 as written in the text, or AC-<position> assigned by the collector." },
+              "idSource": { "enum": ["text", "position"], "description": "Whether the id was written in the source or assigned by position." },
               "text": { "type": "string" },
               "changedAt": { "type": ["string", "null"], "format": "date-time", "description": "Last time the criterion text changed, when the source keeps history." }
             }
@@ -94,39 +107,45 @@
     },
     "change": {
       "type": "object",
-      "required": ["merged", "reviews"],
+      "description": "Raw facts about a pull or merge request. No classification: rules derive authorship, divergences and findings.",
+      "required": ["merged", "commits", "reviews"],
       "additionalProperties": false,
       "properties": {
         "merged": { "type": "boolean" },
         "mergedAt": { "type": ["string", "null"], "format": "date-time" },
-        "authorKind": { "enum": ["human", "agent", "unknown"] },
-        "agent": { "type": ["string", "null"], "description": "Agent profile name when authorKind is agent, e.g. 'github-copilot'." },
-        "divergences": { "type": ["string", "null"], "description": "Text of the 'Divergences from plan' section; null when absent or 'None'." },
-        "reviews": {
-          "type": "array",
+        "repository": { "type": "string", "description": "Repository name as the host shows it, e.g. 'example/fleet-portal'." },
+        "branch": { "type": ["string", "null"], "description": "Source branch name, verbatim." },
+        "labels": { "type": "array", "items": { "type": "string" }, "description": "Label names, verbatim." },
+        "author": { "$ref": "#/$defs/person", "description": "Account that opened the change." },
+        "body": { "type": ["string", "null"], "description": "Description text, verbatim. Rules parse 'Divergences from plan' from it." },
+        "commits": {
+          "type": ["array", "null"],
+          "description": "Commits in the change; null when they could not be read.",
           "items": {
             "type": "object",
-            "required": ["at", "url", "findings"],
+            "required": ["sha", "author", "trailers"],
+            "additionalProperties": false,
+            "properties": {
+              "sha": { "type": "string" },
+              "at": { "type": ["string", "null"], "format": "date-time" },
+              "author": { "$ref": "#/$defs/person" },
+              "trailers": { "type": "array", "items": { "type": "string" }, "description": "Trailer lines of the commit message, verbatim, e.g. 'Co-Authored-By: ...'." }
+            }
+          }
+        },
+        "reviews": {
+          "type": "array",
+          "description": "Reviews and comments, verbatim. Rules parse '[pass] Severity:' lines (REVIEW.md) from body.",
+          "items": {
+            "type": "object",
+            "required": ["at", "url", "author", "body"],
             "additionalProperties": false,
             "properties": {
               "at": { "type": "string", "format": "date-time" },
               "url": { "type": "string", "format": "uri" },
-              "byKind": { "enum": ["human", "agent", "unknown"] },
-              "findings": {
-                "type": "array",
-                "description": "Lines in the REVIEW.md format: [pass] Severity: text.",
-                "items": {
-                  "type": "object",
-                  "required": ["pass", "severity", "text"],
-                  "additionalProperties": false,
-                  "properties": {
-                    "pass": { "type": "string" },
-                    "severity": { "enum": ["Block", "Important", "Nit", "Met", "Unverifiable"] },
-                    "criterion": { "type": ["string", "null"] },
-                    "text": { "type": "string" }
-                  }
-                }
-              }
+              "author": { "$ref": "#/$defs/person" },
+              "state": { "enum": ["approved", "changes-requested", "commented", null], "description": "Review verdict as the host records it; null for a plain comment." },
+              "body": { "type": "string", "description": "Text, verbatim; empty string when the review has none." }
             }
           }
         }

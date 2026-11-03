@@ -22,6 +22,9 @@ sources:
   - id: gh
     system: github
     repositories: [example/fleet-portal]
+  - id: adorepos
+    system: ado-repos
+    project: fleet
 
 # Which document plays which role (ADR-0003).
 roles:
@@ -34,6 +37,29 @@ roles:
     - { source: ado, type: User Story }
   change:
     - { source: gh, link_keys: [ab-mention] }   # PRs point to stories with AB#123
+    - { source: adorepos, link_keys: [native] }
+
+# Custom source states mapped to Chain's four. Unlisted states use the defaults.
+states:
+  ado:
+    Resolved: done
+
+# What the collector reads.
+collect:
+  since_days: 90
+
+# How rules recognise agent work (signal catalogue, section 4).
+# A match on any pattern marks the commit, PR or review as agent work.
+authorship:
+  agents:
+    - name: GitHub Copilot
+      accounts: [Copilot, copilot-swe-agent]
+      branch_prefixes: [copilot/]
+      trailers: [Copilot]
+    - name: Claude Code
+      branch_prefixes: [claude/]
+      trailers: [Claude]
+  labels: [ai-generated]
 
 # Thresholds the rules use. Defaults apply when absent.
 rules:
