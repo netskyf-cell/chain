@@ -87,12 +87,14 @@ npx chain install --target copilot|claude [--dir .] [--force]
 
 `chain/observations.json` holds your team's work item titles, PR descriptions and review text. Decide with your team whether to commit it or add `chain/` to `.gitignore`.
 
-## Try it on the example
+## See it on a demo team
 
 ```sh
 git clone https://github.com/netskyf-cell/chain && cd chain && npm install
-npx chain board examples/observations.example.json --config examples/chain.example.yml --out /tmp/board.html
+npx chain board examples/demo/observations.json --config examples/demo/chain.yml --out demo-board.html
 ```
+
+A fictional team with 4 Epics and 9 pull requests. To show Chain to others, follow the [15-minute demo script](docs/demo.md).
 
 ## Status
 
