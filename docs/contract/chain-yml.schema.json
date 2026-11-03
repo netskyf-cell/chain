@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/netskyf-cell/chain/docs/contract/chain-yml.schema.json",
+  "title": "chain.yml",
+  "description": "A team's Chain configuration. Written by the setup agent, merged by the team. Holds no secret.",
+  "type": "object",
+  "required": ["team", "sources", "roles"],
+  "additionalProperties": false,
+  "properties": {
+    "team": { "type": "string", "minLength": 1 },
+    "vocabulary": {
+      "type": "object",
+      "description": "The team's words for display.",
+      "propertyNames": { "enum": ["group", "intent", "spec", "plan", "change"] },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "system"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "system": { "enum": ["azure-devops", "confluence", "github", "ado-repos", "gitlab", "git-files", "other"] },
+          "project": { "type": "string" },
+          "space": { "type": "string" },
+          "repositories": { "type": "array", "items": { "type": "string" } },
+          "path": { "type": "string", "description": "For git-files: folder holding decision files." }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "intent": { "$ref": "#/$defs/mappings" },
+        "spec": { "$ref": "#/$defs/mappings" },
+        "plan": { "$ref": "#/$defs/mappings" },
+        "change": { "$ref": "#/$defs/mappings" }
+      }
+    },
+    "states": {
+      "type": "object",
+      "description": "Per source id: source state → open, active, done or removed.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "enum": ["open", "active", "done", "removed"] }
+      }
+    },
+    "collect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "since_days": { "type": "integer", "minimum": 1, "default": 90 }
+      }
+    },
+    "authorship": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "accounts": { "type": "array", "items": { "type": "string" }, "description": "Logins of PR, commit or review authors." },
+              "branch_prefixes": { "type": "array", "items": { "type": "string" } },
+              "trailers": { "type": "array", "items": { "type": "string" }, "description": "Matched against the name in Co-Authored-By trailers, case-insensitive." }
+            }
+          }
+        },
+        "labels": { "type": "array", "items": { "type": "string" }, "description": "PR labels that mark agent work." }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "stalled_after_days": { "type": "integer", "minimum": 1, "default": 28 },
+        "review_passes": { "type": "array", "items": { "type": "string" }, "default": ["compliance"] }
+      }
+    }
+  },
+  "$defs": {
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source"],
+        "additionalProperties": false,
+        "properties": {
+          "source": { "type": "string" },
+          "type": { "type": "string", "description": "The source's item type, e.g. 'Epic' or 'PRD'." },
+          "criteria_field": { "type": "string" },
+          "link_keys": { "type": "array", "items": { "enum": ["ab-mention", "native", "url", "branch", "folder", "other"] } }
+        }
+      }
+    }
+  }
+}
