@@ -6,6 +6,7 @@
 //   chain compare <a.json> <b.json>           do two collector runs agree?
 //   chain rules [observations.json] [--config chain.yml] [--out file]
 //   chain board [observations.json] [--config chain.yml] [--out chain/board.html]
+//   chain install --target copilot|claude [--dir .] [--force]
 // Exit codes: 0 ok, 1 invalid or different, 2 usage or file error.
 
 const fs = require('node:fs');
@@ -14,6 +15,7 @@ const { validateObservations, validateConfig, readJson, readYaml } = require('..
 const { compareObservations } = require('../lib/compare');
 const { run, toJson } = require('../lib/engine');
 const { renderBoard } = require('../lib/board/render');
+const { adapters, TARGETS } = require('../scripts/build-adapters');
 
 const DEFAULT_OBS = path.join('chain', 'observations.json');
 const DEFAULT_CONFIG = 'chain.yml';
@@ -24,7 +26,8 @@ const USAGE = `Usage:
   chain validate --config [chain.yml]
   chain compare <first.json> <second.json>
   chain rules [observations.json] [--config chain.yml] [--out verdicts.json]
-  chain board [observations.json] [--config chain.yml] [--out chain/board.html]`;
+  chain board [observations.json] [--config chain.yml] [--out chain/board.html]
+  chain install --target copilot|claude [--dir .] [--force]`;
 
 function parseArgs(argv) {
   const positional = [];
@@ -122,6 +125,34 @@ function board(args) {
   return 0;
 }
 
+// Copies the three agents to where the chosen coding agent reads them, and
+// nothing else (spec AC-I1). An existing different file is kept unless --force.
+function install({ flags }) {
+  const target = flags.target;
+  if (typeof target !== 'string' || !TARGETS[target]) return fail(`--target must be one of: ${Object.keys(TARGETS).join(', ')}\n${USAGE}`);
+  const dir = typeof flags.dir === 'string' ? flags.dir : '.';
+  if (!fs.existsSync(dir)) throw new Error(`Folder not found: ${dir}`);
+  let kept = 0;
+  for (const a of adapters().filter((x) => x.target === target)) {
+    const dest = path.join(dir, a.installPath);
+    const current = fs.existsSync(dest) ? fs.readFileSync(dest, 'utf8') : null;
+    if (current === a.content) {
+      process.stdout.write(`same ${a.installPath}\n`);
+      continue;
+    }
+    if (current !== null && !flags.force) {
+      kept += 1;
+      process.stdout.write(`kept ${a.installPath} (it differs; use --force to replace it)\n`);
+      continue;
+    }
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, a.content);
+    process.stdout.write(`wrote ${a.installPath}\n`);
+  }
+  process.stdout.write(kept ? '' : 'Next: ask the chain-setup agent to set Chain up for your team.\n');
+  return kept ? 1 : 0;
+}
+
 function main(argv) {
   const [command, ...rest] = argv;
   const args = parseArgs(rest);
@@ -130,6 +161,7 @@ function main(argv) {
     if (command === 'compare') return compare(args);
     if (command === 'rules') return rules(args);
     if (command === 'board') return board(args);
+    if (command === 'install') return install(args);
     return fail(USAGE);
   } catch (e) {
     return fail(e.message);

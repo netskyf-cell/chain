@@ -9,4 +9,4 @@
 
 ## Current focus
 
-Foundation of the new Chain (v1 is archived as `chain-v1`; see [lessons from v1](docs/lessons-from-v1.md)). Next: once the intent and decision records are merged, the spec and plan for the first milestone: the three agents, the ported rules and the local board.
+First milestone (`intent/m1-agent-pack/`) is built: contract 0.2, rules, facts, board, the three agents, install. Open: live runs of the agents against real connectors (criteria marked manual in PR #7) and the 5-PR benchmark (`docs/benchmark.md`) with the pilot team. The plan is not complete until the benchmark is recorded.
