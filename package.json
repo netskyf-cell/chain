@@ -4,6 +4,9 @@
   "private": true,
   "description": "Shows product people whether what they decided is what got built.",
   "license": "MIT",
+  "bin": {
+    "chain": "bin/chain.js"
+  },
   "engines": {
     "node": ">=20"
   },
